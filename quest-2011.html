@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>퀘스트 상세 • 로나월드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  .card { border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; padding:1rem; }
+  .muted { color:#6b7280; }
+  .row { display:flex; align-items:center; gap:.75rem; }
+  .grid { display:grid; gap:1rem; }
+  img { max-width:100%; height:auto; }
+  .thumb { width:56px; height:56px; object-fit:contain; background:#fff; border:1px solid #e5e7eb; border-radius:0.5rem; padding:4px; }
+  .ibox { display:flex; align-items:center; gap:.75rem; padding:.5rem; border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; transition: background .15s ease; }
+  .ibox:hover { background:#f9fafb; }
+  .bubble{position:relative;max-width:80%;padding:.625rem .75rem;border-radius:1rem;line-height:1.45;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bubble-left{background:#f8fafc;border:1px solid #e5e7eb;color:#111827}
+  .bubble-right{background:#3b82f6;border:1px solid #1d4ed8;color:#fff}
+  .bubble-left:after{content:"";position:absolute;left:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent #e5e7eb transparent transparent}
+  .bubble-left:before{content:"";position:absolute;left:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent #f8fafc transparent transparent}
+  .bubble-right:after{content:"";position:absolute;right:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #1d4ed8}
+  .bubble-right:before{content:"";position:absolute;right:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #3b82f6}
+  .bubble-name{font-weight:600;font-size:.875rem;margin-bottom:.125rem}
+  .avatar{width:40px;height:40px;border-radius:9999px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+<a class="inline-flex items-center gap-1 text-sm mb-4 text-blue-600 hover:underline" href="index.html?tab=quests" id="back-to-quests">← 퀘스트 목록으로</a>
+<article id="detail"></article>
+</div>
+<script>
+(()=>{
+  'use strict';
+  const q =
+  {
+  "id": "2011",
+  "code": "제인 2-1",
+  "title": "제인의 첫번째 도전",
+  "type": "아이템 수집",
+  "region": "리스항구",
+  "minLevel": 40,
+  "start": {
+    "npc": {
+      "name": "제인",
+      "img": "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w400",
+      "id": "1002100"
+    },
+    "place": {
+      "name": "리스항구",
+      "img": "https://drive.google.com/thumbnail?id=14oqcw8cbRUt8UY7IUtRKnBzDFW5tpxdS&sz=w800",
+      "code": "104000000"
+    }
+  },
+  "finish": {
+    "npc": {
+      "name": "제인",
+      "img": "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w400",
+      "id": "1002100"
+    },
+    "place": {
+      "name": "리스항구",
+      "img": "https://drive.google.com/thumbnail?id=14oqcw8cbRUt8UY7IUtRKnBzDFW5tpxdS&sz=w800",
+      "code": "104000000"
+    }
+  },
+  "dialogues": [
+    {"who":"제인","text":"어라? 지난번에 저를 도와주신 분이시군요! 정말 오랜만이네요 ~! 전에는 힘들게 아이템을 모아와 주셨지만 끝내 모험은 떠나지 못했었죠… 그때 일은 감사하게 생각하고 있답니다. 비록 꿈은 이루지 못했어도 말이죠 ..."},
+    {"who":"제인","text":"저와는 달리 당신은 모험으로 한층 강해지신 것 같군요 ... 정말 부러워요. 저도 그때 모험을 떠나기만 했어도 …. 핫 …. 제가 무슨 말을 ….. 아무튼 이렇게 강해진 당신에게 뭔가 부탁드릴 것이 있는데 조금만 시간을 내서 제 얘기를 들어주시겠어요?"},
+    {"who":"제인","text":"그때 모험가가 되기를 포기한 저는 새로운 꿈이 생겼답니다. 하긴 저처럼 연약한 여자가 모험가가 되기는 힘들죠. 새로운 꿈은 …. 아주 아주 훌륭한 연금술사가 되는 거에요! 언젠가는 페리온 마을의 소피아 니를 능가하는 최고의 연금술사가 되겠다고 마음 먹었어요."},
+    {"who":"제인","text":"연금술사는 모험가처럼 위험한 일은 아니기 때문에 아버지도 그때처럼 반대하시지는 않아요. 아참! 그런데 연금술사가 어떤 일을 하는 람인지는 알고 계신가요? 아신다고 하더라도 제가 다시 한번 알기 쉽게 간단히 설명해 드릴게요."},
+    {"who":"제인","text":"연금술사는 이 세상에 존재하는 여러 가지 물건을 자유 자재로 다룰수 있고 나아가 특수한 기술로 어떤 물건을 새로운 다른 무언가로 만들어 낼 수 있는 자들을 말한답니다. 즉, 여러 가지 아이템으로 신비한 힘을 지닌 물건을 만들수 있는 직업이에요."},
+    {"who":"제인","text":"그래서 말인데요 .. 여러 가지 물건을 만들어 보려면 재료가 필요하거든요~ 바쁘지 않으시다면 제가 알려 드리는 재료를 구해 주시겠어요? 그 대신 만들어진 물건은 무조건 당신에게 드리겠어요. 사실 뭐가 만들어질지 장담할 순 없지만 ... 어떠세요?"},
+    {"who":"제인","text":"정말 감사합니다. 우선 맑은 물 1개, 이상한 느낌의 약 30개, 멜러디의 실험용 개구리 20개를 모아와 주시겠어요? 잘 하면 엘릭서를 만들수 있을것 같거든요."}
+  ],
+  "completionDialogues": [
+    {"who":"제인","text":"제가 말씀드렸던 맑은 물 1개, 이상한 느낌의 약 30개, 멜러디의 실험용 개구리 20개를 모두 모아오셨군요! 좋아요! 조금만 기다려 주세요~ 일단 물을 끓이고~ 재료를 집어 넣고~ 뭐가 될까나~"},
+    {"who":"제인","text":"우왓! 모아오신 재료로 물건이 다 만들어 졌어요. 책을 보고 처음 만들어 본 건데 잘 되었으려나? 그럼 약속대로 만들어진 물건은 당신께 드릴게요. 그 전에 아이템의 소비창에 빈 칸이 하나 이상 있는지 인해 주세요 ~!"},
+    {"who":"제인","text":"어라 ... 설마 저에게 천부적인 연금술사의 재능이 있는건 아니겠죠? 록 책을 보고 하기는 했지만 엘릭서 10개가 만들어 졌답니다. 이걸로 저의 첫번째 실험은 대 성공이에요~ 도와주셔서 고마웠어요~"}
+  ],
+  "descHtml": "<p>예전에 모험을 떠나기 위해 와일드보어의 송곳니를 모아다 준 제인을 리스 항구에서 다시 한번 만나게 되었다. 그때 모았던 물건들이 다른 사람이 모아준 거였다는 걸 들켜버렸다나 뭐라나... 모험을 포기한 제인은 연금술사라는 새로운 꿈이 생겼다면서 여러 가지 실험을 해보려면 재료가 필요하다고 말했다. 그 재료들... 나보고 구해달라는 말이겠지? 맑은물 1개, 이상한 느낌의 약 30개, 멜러디의 실험용개구리20개를 모아서 가져가면 엘릭서를 만들수 있다니 속는셈 치고 한 번 해보는 것도 좋을것 같다.</p>",
+  "reqs": [
+    {"kind":"item","name":"맑은 물","img":"https://drive.google.com/thumbnail?id=1yUXyIrE8HK0pfFxxhKo747tOsM0vbJ7P&sz=w200","qty":1,"id":"2022000"},
+    {"kind":"item","name":"멜러디의 실험용 개구리","img":"https://drive.google.com/thumbnail?id=1SyymxE0L5Oe6pqnD5aOFFJJEY4tTUA5o&sz=w200","qty":20,"id":"4000041"},
+    {"kind":"item","name":"이상한 느낌의 약","img":"https://drive.google.com/thumbnail?id=1EJTbbHzqIefsYgtHEn6t6wVd7s8xnKea&sz=w200","qty":30,"id":"4000036"}
+  ],
+  "tips": [
+    {"kind":"monster","name":"멜러디","level":55,"id":"2700312","img":"https://drive.google.com/thumbnail?id=1G0L1z7cqd595dSd3naqRMqsCu6sX24Gq&sz=w200"},
+    {"kind":"monster","name":"레이스","level":48,"id":"4230102","img":"https://drive.google.com/thumbnail?id=1Z9YC8BMqcph6XtU-itVTmXof1Y-kb37P&sz=w200"}
+  ],
+  "rewards": [
+    {"name":"엘릭서","qty":10,"img":"https://drive.google.com/thumbnail?id=1WQKAOc0vettHB8PmqO5l-En10mhyYA6m&sz=w200","itemId":"2000004"},
+    {"exp":45500,"img":"https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200"}
+  ],
+  "prereqs": [],
+  "nexts": [{"id":"2012","title":"제인의 두번째 도전"}]
+};
+  const img=(src,alt='',cls='')=>`<img src="${src||''}" alt="${alt||''}" ${cls?`class="${cls}"`:''} onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace('thumbnail?id=','uc?export=view&id=');}else{this.style.display='none'}">`;
+  const row=(l,il,nl,r,ir,nr,ll='',lr='')=>{const cell=(label,im,name,link)=>{const inner=`${img(im,name)}<div class='text-sm'><div class='muted'>${label}</div><div class='font-medium'>${name||'-'}</div></div>`;return link?`<a class='row' href='${link}'>${inner}</a>`:`<div class='row'>${inner}</div>`;};return `<div class='row'>${cell(l,il,nl,ll)}<div class='muted' style='padding:0 .5rem'>|</div>${cell(r,ir,nr,lr)}</div>`;};
+  const rewardBox=r=>{if(typeof r.exp==='number'){const pic=img(r.img,'EXP','thumb');const txt=`<div class='text-sm font-medium'>경험치 ${r.exp.toLocaleString()} exp</div>`;return `<div class='ibox'>${pic}${txt}</div>`;}const title=`${r.name||''}${(r.qty&&r.qty>0)?' ×'+r.qty:''}`;const pic=img(r.img,r.name,'thumb');const inner=`<div class='text-sm font-medium'>${title}</div>`;return r.itemId?`<a class='ibox' href='https://linsuol13-bit.github.io/LO/item-${r.itemId}.html'>${pic}${inner}</a>`:`<div class='ibox'>${pic}${inner}</div>`;};
+  const reqBox=r=>{const title=`${r.name} ×${r.qty||''}`;const pic=img(r.img,r.name,'thumb');const href = r.id ? `https://linsuol13-bit.github.io/LO/item-${r.id}.html` : '';const inner = `${pic}<div class='text-sm'><div class='muted'>필요 아이템</div><div class='font-medium'>${title}</div></div>`;return href?`<a class='ibox' href='${href}'>${inner}</a>`:`<div class='ibox'>${inner}</div>`;};
+  const isPlayer=w=>/^(나|플레이어|주인공|Player|영웅)$/i.test((w||'').toString().trim());
+  const avatarFor=who=>{if(who===(q.start.npc&&q.start.npc.name))return q.start.npc.img;if(who===(q.finish.npc&&q.finish.npc.name))return q.finish.npc.img;return '';};
+  const dialogueRow=d=>{d=d||{};const left=!isPlayer(d.who);const av=left?avatarFor(d.who):'';const avatar=(left&&av)?`<img class='avatar' src='${av}' alt='${d.who||''}' onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace('thumbnail?id=','uc?export=view&id=');}else{this.style.display='none'}">`:'';return `<div class='flex items-start ${left?'justify-start':'justify-end'} gap-2'>${left?avatar:''}<div class='bubble ${left?'bubble-left':'bubble-right'}'><div class='bubble-name'>${d.who||''}</div><div class='text-sm leading-snug' style='white-space:pre-line'>${d.text||''}</div></div></div>`;};
+  const prereqSection=list=>{if(!Array.isArray(list)||!list.length)return'';const boxes=list.map(p=>`<a class='ibox' href='https://linsuol13-bit.github.io/LO/quest-${p.id}.html'><div class='text-sm'><div class='muted'>선행 퀘스트</div><div class='font-medium'>[${p.id}] ${p.title}</div></div></a>`).join('');return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>선행 퀘스트</h2><div class='grid'>${boxes}</div></section>`;};
+  const nextSection=list=>{if(!Array.isArray(list)||!list.length)return'';const boxes=list.map(n=>`<a class='ibox' href='https://linsuol13-bit.github.io/LO/quest-${n.id}.html'><div class='text-sm'><div class='muted'>다음 퀘스트</div><div class='font-medium'>[${n.id}] ${n.title}</div></div></a>`).join('');return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>다음 퀘스트</h2><div class='grid'>${boxes}</div></section>`;};
+  const reqSection=list=>{if(!Array.isArray(list)||!list.length)return'';return `<div class='mt-3'><div class='muted text-xs mb-1'>요구 조건</div><div class='grid' style='grid-template-columns:1fr 1fr; gap:.75rem'>${list.map(reqBox).join('')}</div></div>`;};
+  const tipBox=t=>{const pic=img(t.img,t.name,'thumb');const level=t.level?` (Lv.${t.level})`:'';const href=t.id?`https://linsuol13-bit.github.io/LO/monster-${t.id}.html`:'';const inner=`${pic}<div class='text-sm'><div class='muted'>몬스터 사냥</div><div class='font-medium'>${t.name||''}${level}</div></div>`;return href?`<a class='ibox' href='${href}'>${inner}</a>`:`<div class='ibox'>${inner}</div>`;};
+  const tipsSection=list=>{ if(!Array.isArray(list)||!list.length) return ''; return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>TIP</h2><div class='grid'>${list.map(tipBox).join('')}</div></section>`; };
+  const $detail=document.getElementById('detail');
+  $detail.innerHTML=`
+    <header class='mb-4'><h1 class='text-2xl font-bold'>${q.code} · ${q.title}</h1><p class='text-sm muted'>${q.region} · ${q.type} · Lv.${q.minLevel}</p></header>
+    ${prereqSection(q.prereqs)}
+    <section class='grid' style='grid-template-columns:1fr 1fr;'>
+      <div class='card'><h2 class='text-sm font-semibold mb-3'>시작</h2>${row('시작 NPC', q.start.npc.img, q.start.npc.name, '시작 장소', q.start.place.img, q.start.place.name, (q.start.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.start.npc.id}.html`:''), (q.start.place.code?`https://linsuol13-bit.github.io/LO/map-${q.start.place.code}.html`:''))}</div>
+      <div class='card'><h2 class='text-sm font-semibold mb-3'>완료</h2>${row('완료 NPC', q.finish.npc.img, q.finish.npc.name, '완료 장소', q.finish.place.img, q.finish.place.name, (q.finish.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.finish.npc.id}.html`:''), (q.finish.place.code?`https://linsuol13-bit.github.io/LO/map-${q.finish.place.code}.html`:''))}</div>
+    </section>
+    <section class='mb-6'><h2 class='text-sm font-semibold mb-2'>대사</h2><div class='card' style='display:grid; gap:.5rem'>${(q.dialogues||[]).map(dialogueRow).join('')}</div></section>
+    <section class='mb-6'><h2 class='text-sm font-semibold mb-2'>퀘스트 조건</h2><div class='card text-sm leading-relaxed text-gray-800 mb-3'>${q.descHtml}</div>${reqSection(q.reqs)}
+      ${tipsSection(q.tips)}
+      ${(q.completionDialogues&&q.completionDialogues.length)?`
+      <div class='mt-4 pt-3 border-t'><h2 class='text-sm font-semibold mb-2'>완료 대사</h2><div class='card'>${(q.completionDialogues||[]).map(dialogueRow).join("")}</div></div>`:''}
+    </section>
+    ${(q.rewards&&q.rewards.length)?`<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>완료 보상</h2><div class='grid'>${q.rewards.map(rewardBox).join('')}</div></section>`:''}
+    ${nextSection(q.nexts)}
+  `;
+})();
+</script>
+<script>
+(function(){
+  var a=document.getElementById('back-to-quests');
+  if(!a) return;
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    try{
+      var href=this.getAttribute('href')||'index.html?tab=quests';
+      var u=href+(href.indexOf('?')>-1?'&':'?')+'nocache='+Date.now();
+      location.replace(u);
+    }catch(err){ location.href='index.html?tab=quests'; }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>퀘스트 상세 • 제인의 두번째 도전</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  .card { border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; padding:1rem; }
+  .muted { color:#6b7280; }
+  .row { display:flex; align-items:center; gap:.75rem; }
+  .grid { display:grid; gap:1rem; }
+  img { max-width:100%; height:auto; }
+  .thumb { width:56px; height:56px; object-fit:contain; background:#fff; border:1px solid #e5e7eb; border-radius:0.5rem; padding:4px; }
+  .ibox { display:flex; align-items:center; gap:.75rem; padding:.5rem; border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; transition: background .15s ease; }
+  .ibox:hover { background:#f9fafb; }
+  .bubble{position:relative;max-width:80%;padding:.625rem .75rem;border-radius:1rem;line-height:1.45;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bubble-left{background:#f8fafc;border:1px solid #e5e7eb;color:#111827}
+  .bubble-right{background:#3b82f6;border:1px solid #1d4ed8;color:#fff}
+  .bubble-left:after{content:"";position:absolute;left:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent #e5e7eb transparent transparent}
+  .bubble-left:before{content:"";position:absolute;left:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent #f8fafc transparent transparent}
+  .bubble-right:after{content:"";position:absolute;right:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #1d4ed8}
+  .bubble-right:before{content:"";position:absolute;right:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #3b82f6}
+  .bubble-name{font-weight:600;font-size:.875rem;margin-bottom:.125rem}
+  .avatar{width:40px;height:40px;border-radius:9999px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+<a class="inline-flex items-center gap-1 text-sm mb-4 text-blue-600 hover:underline" href="index.html?tab=quests" id="back-to-quests">← 퀘스트 목록으로</a>
+<article id="detail"></article>
+</div>
+<script>
+(()=>{
+  'use strict';
+  const q =
+  {
+    "id": "2012",
+    "code": "제인 2-2",
+    "title": "제인의 두번째 도전",
+    "type": "아이템 수집",
+    "region": "리스항구",
+    "minLevel": 40,
+    "start": {
+      "npc": {"name": "제인","img": "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w400","id": "1002100"},
+      "place": {"name": "리스항구","img": "https://drive.google.com/thumbnail?id=14oqcw8cbRUt8UY7IUtRKnBzDFW5tpxdS&sz=w800","code": "104000000"}
+    },
+    "finish": {
+      "npc": {"name": "제인","img": "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w400","id": "1002100"},
+      "place": {"name": "리스항구","img": "https://drive.google.com/thumbnail?id=14oqcw8cbRUt8UY7IUtRKnBzDFW5tpxdS&sz=w800","code": "104000000"}
+    },
+    "dialogues": [
+      {"who":"제인","text":"제가 드린 물건은 잘 쓰고 계신가요? 이번에는 좀 더 좋은 걸 만들어 보려고 해요. 번거롭긴 하겠지만 지난번처럼 조금만 시간을 내 주시면 될텐데 ... 어때요? 제 부탁을 들어주시겠어요?"},
+      {"who":"제인","text":"정말 감사합니다. 그럼 머쉬맘의 포자 1개, 드레이크의 피 3개, 이상한 느낌의 약 100개, 멜러디의 실험용 개구리 30개를 모아와 주시겠어요? 잘 하면 파워 엘릭서를 만들수 있을 것 같거든요."}
+    ],
+    "completionDialogues": [
+      {"who":"제인","text":"제가 말씀드렸던 머쉬맘의 포자 1개, 드레이크의 피 3개, 이상한 느낌의 약 100개, 멜러디의 실험용 개구리 30개를 모두 모아오셨군요! 좋아요! 조금만 기다려 주세요~ 일단 물을 끓이고~ 재료를 집어 넣고~ 뭐가 될까나~"},
+      {"who":"제인","text":"우왓! 모아오신 재료로 물건이 다 만들어 졌어요. 책을 보고 천천히 들어 본 건데 잘 되었으려나? 그럼 약속대로 만들어진 물건은 당신께 드릴게요. 그 전에 아이템의 소비창에 빈 칸이 하나 이상 있는지 확인해 주세요 ~!"},
+      {"who":"제인","text":"어라 ... 설마 저에게 천부적인 연금술사의 재능이 있는건 아니겠죠? 록 책을 보고 하기는 했지만 파워 엘릭서 15개가 만들어 졌답니다. 이걸로 저의 두번째 실험은 대 성공이에요~ 도와주셔서 고마웠어요~"}
+    ],
+    "descHtml": "<p>제인은 이번에는 좀 더 좋은걸 만들어 주겠다면서 머쉬맘의 포자 1개, 드레이크의 피 3개, 이상한 느낌의약 100개, 멜러디의 실험용 개구리 30개를 모아와 달라고 말했다. 한 번에 HP와 MP를 전부 회복시켜주는 파워 엘릭서를 만들수 있다나 ...</p>",
+    "reqs": [
+      {"kind":"item","name":"드레이크의 피","img":"https://drive.google.com/thumbnail?id=1HT5bCIxsi6xgcjvqzXc77IjIXDAUZgJW&sz=w200","qty":3,"id":"2012000"},
+      {"kind":"item","name":"머쉬맘의 포자","img":"https://drive.google.com/thumbnail?id=1pO7aTWucMM5Qg3WjHwYAC-nrbfbEtS7Z&sz=w200","qty":1,"id":"4000040"},
+      {"kind":"item","name":"멜러디의 실험용 개구리","img":"https://drive.google.com/thumbnail?id=1SyymxE0L5Oe6pqnD5aOFFJJEY4tTUA5o&sz=w200","qty":30,"id":"4000041"},
+      {"kind":"item","name":"이상한 느낌의 약","img":"https://drive.google.com/thumbnail?id=1EJTbbHzqIefsYgtHEn6t6wVd7s8xnKea&sz=w200","qty":100,"id":"4000036"}
+    ],
+    "tips": [
+      {"kind":"monster","name":"드레이크","level":50,"id":"2600224","img":"https://drive.google.com/thumbnail?id=1sk4XRyiIuxfkUfrTd3WS7OFv_v_wPVPK&sz=w200"},
+      {"kind":"monster","name":"머쉬맘","level":60,"id":"2600208","img":"https://drive.google.com/thumbnail?id=1R9kZAcyf-6snSmixBHCNMzIZwsZ_rW_o&sz=w200"},
+      {"kind":"monster","name":"멜러디","level":55,"id":"2700312","img":"https://drive.google.com/thumbnail?id=1G0L1z7cqd595dSd3naqRMqsCu6sX24Gq&sz=w200"},
+      {"kind":"monster","name":"레이스","level":48,"id":"4230102","img":"https://drive.google.com/thumbnail?id=1Z9YC8BMqcph6XtU-itVTmXof1Y-kb37P&sz=w200"}
+    ],
+    "rewards": [
+      {"name":"파워 엘릭서","qty":15,"img":"https://drive.google.com/thumbnail?id=1v25YsOKCwrTTb-zp5xaXErUY5BJ7iUr5&sz=w200","itemId":"2000005"},
+      {"exp":47600,"img":"https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200"}
+    ],
+    "prereqs": [{"id":"2011","title":"제인의 첫번째 도전"}],
+    "nexts": [{"id":"2013","title":"제인의 마지막 도전"}]
+  };
+  const img=(src,alt='',cls='')=>`<img src="${src||''}" alt="${alt||''}" ${cls?`class="${cls}"`:''} onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace('thumbnail?id=','uc?export=view&id=');}else{this.style.display='none'}">`;
+  const row=(l,il,nl,r,ir,nr,ll='',lr='')=>{const cell=(label,im,name,link)=>{const inner=`${img(im,name)}<div class='text-sm'><div class='muted'>${label}</div><div class='font-medium'>${name||'-'}</div></div>`;return link?`<a class='row' href='${link}'>${inner}</a>`:`<div class='row'>${inner}</div>`;};return `<div class='row'>${cell(l,il,nl,ll)}<div class='muted' style='padding:0 .5rem'>|</div>${cell(r,ir,nr,lr)}</div>`;};
+  const rewardBox=r=>{if(typeof r.exp==='number'){const pic=img(r.img,'EXP','thumb');const txt=`<div class='text-sm font-medium'>경험치 ${r.exp.toLocaleString()} exp</div>`;return `<div class='ibox'>${pic}${txt}</div>`;}const title=`${r.name||''}${(r.qty&&r.qty>0)?' ×'+r.qty:''}`;const pic=img(r.img,r.name,'thumb');const inner=`<div class='text-sm font-medium'>${title}</div>`;return r.itemId?`<a class='ibox' href='https://linsuol13-bit.github.io/LO/item-${r.itemId}.html'>${pic}${inner}</a>`:`<div class='ibox'>${pic}${inner}</div>`;};
+  const reqBox=r=>{const title=`${r.name} ×${r.qty||''}`;const pic=img(r.img,r.name,'thumb');const href = r.id ? `https://linsuol13-bit.github.io/LO/item-${r.id}.html` : '';const inner = `${pic}<div class='text-sm'><div class='muted'>필요 아이템</div><div class='font-medium'>${title}</div></div>`;return href?`<a class='ibox' href='${href}'>${inner}</a>`:`<div class='ibox'>${inner}</div>`;};
+  const isPlayer=w=>/^(나|플레이어|주인공|Player|영웅)$/i.test((w||'').toString().trim());
+  const avatarFor=who=>{if(who===(q.start.npc&&q.start.npc.name))return q.start.npc.img;if(who===(q.finish.npc&&q.finish.npc.name))return q.finish.npc.img;return '';};
+  const dialogueRow=d=>{d=d||{};const left=!isPlayer(d.who);const av=left?avatarFor(d.who):'';const avatar=(left&&av)?`<img class='avatar' src='${av}' alt='${d.who||''}' onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace('thumbnail?id=','uc?export=view&id=');}else{this.style.display='none'}">`:'';return `<div class='flex items-start ${left?'justify-start':'justify-end'} gap-2'>${left?avatar:''}<div class='bubble ${left?'bubble-left':'bubble-right'}'><div class='bubble-name'>${d.who||''}</div><div class='text-sm leading-snug' style='white-space:pre-line'>${d.text||''}</div></div></div>`;};
+  const prereqSection=list=>{if(!Array.isArray(list)||!list.length)return'';const boxes=list.map(p=>`<a class='ibox' href='https://linsuol13-bit.github.io/LO/quest-${p.id}.html'><div class='text-sm'><div class='muted'>선행 퀘스트</div><div class='font-medium'>[${p.id}] ${p.title}</div></div></a>`).join('');return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>선행 퀘스트</h2><div class='grid'>${boxes}</div></section>`;};
+  const nextSection=list=>{if(!Array.isArray(list)||!list.length)return'';const boxes=list.map(n=>`<a class='ibox' href='https://linsuol13-bit.github.io/LO/quest-${n.id}.html'><div class='text-sm'><div class='muted'>다음 퀘스트</div><div class='font-medium'>[${n.id}] ${n.title}</div></div></a>`).join('');return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>다음 퀘스트</h2><div class='grid'>${boxes}</div></section>`;};
+  const reqSection=list=>{if(!Array.isArray(list)||!list.length)return'';return `<div class='mt-3'><div class='muted text-xs mb-1'>요구 조건</div><div class='grid' style='grid-template-columns:1fr 1fr; gap:.75rem'>${list.map(reqBox).join('')}</div></div>`;};
+  const tipBox=t=>{const pic=img(t.img,t.name,'thumb');const level=t.level?` (Lv.${t.level})`:'';const href=t.id?`https://linsuol13-bit.github.io/LO/monster-${t.id}.html`:'';const inner=`${pic}<div class='text-sm'><div class='muted'>몬스터 사냥</div><div class='font-medium'>${t.name||''}${level}</div></div>`;return href?`<a class='ibox' href='${href}'>${inner}</a>`:`<div class='ibox'>${inner}</div>`;};
+  const tipsSection=list=>{ if(!Array.isArray(list)||!list.length) return ''; return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>TIP</h2><div class='grid'>${list.map(tipBox).join('')}</div></section>`; };
+  const $detail=document.getElementById('detail');
+  $detail.innerHTML=`
+    <header class='mb-4'><h1 class='text-2xl font-bold'>${q.code} · ${q.title}</h1><p class='text-sm muted'>${q.region} · ${q.type} · Lv.${q.minLevel}</p></header>
+    ${prereqSection(q.prereqs)}
+    <section class='grid' style='grid-template-columns:1fr 1fr;'>
+      <div class='card'><h2 class='text-sm font-semibold mb-3'>시작</h2>${row('시작 NPC', q.start.npc.img, q.start.npc.name, '시작 장소', q.start.place.img, q.start.place.name, (q.start.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.start.npc.id}.html`:''), (q.start.place.code?`https://linsuol13-bit.github.io/LO/map-${q.start.place.code}.html`:''))}</div>
+      <div class='card'><h2 class='text-sm font-semibold mb-3'>완료</h2>${row('완료 NPC', q.finish.npc.img, q.finish.npc.name, '완료 장소', q.finish.place.img, q.finish.place.name, (q.finish.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.finish.npc.id}.html`:''), (q.finish.place.code?`https://linsuol13-bit.github.io/LO/map-${q.finish.place.code}.html`:''))}</div>
+    </section>
+    <section class='mb-6'><h2 class='text-sm font-semibold mb-2'>대사</h2><div class='card' style='display:grid; gap:.5rem'>${(q.dialogues||[]).map(dialogueRow).join('')}</div></section>
+    <section class='mb-6'><h2 class='text-sm font-semibold mb-2'>퀘스트 조건</h2><div class='card text-sm leading-relaxed text-gray-800 mb-3'>${q.descHtml}</div>${reqSection(q.reqs)}
+      ${tipsSection(q.tips)}
+      ${(q.completionDialogues&&q.completionDialogues.length)?`
+      <div class='mt-4 pt-3 border-t'><h2 class='text-sm font-semibold mb-2'>완료 대사</h2><div class='card'>${(q.completionDialogues||[]).map(dialogueRow).join("")}</div></div>`:''}
+    </section>
+    ${(q.rewards&&q.rewards.length)?`<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>완료 보상</h2><div class='grid'>${q.rewards.map(rewardBox).join('')}</div></section>`:''}
+    ${nextSection(q.nexts)}
+  `;
+})();
+</script>
+<script>
+(function(){
+  var a=document.getElementById('back-to-quests');
+  if(!a) return;
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    try{
+      var href=this.getAttribute('href')||'index.html?tab=quests';
+      var u=href+(href.indexOf('?')>-1?'&':'?')+'nocache='+Date.now();
+      location.replace(u);
+    }catch(err){ location.href='index.html?tab=quests'; }
+  });
+})();
+</script>
+</body>
+</html>

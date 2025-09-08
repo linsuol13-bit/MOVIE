@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>퀘스트 상세 • 로나월드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  .card { border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; padding:1rem; }
+  .muted { color:#6b7280; }
+  .row { display:flex; align-items:center; gap:.75rem; }
+  .grid { display:grid; gap:1rem; }
+  img { max-width:100%; height:auto; }
+  .thumb { width:56px; height:56px; object-fit:contain; background:#fff; border:1px solid #e5e7eb; border-radius:0.5rem; padding:4px; }
+  .ibox { display:flex; align-items:center; gap:.75rem; padding:.5rem; border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; }
+  .ibox:hover { background:#f9fafb; }
+
+  /* Speech bubbles */
+  .bubble{position:relative;max-width:80%;padding:.625rem .75rem;border-radius:1rem;line-height:1.45;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bubble-left{background:#f8fafc;border:1px solid #e5e7eb;color:#111827}
+  .bubble-right{background:#3b82f6;border:1px solid #1d4ed8;color:#fff}
+  .bubble-left:after{content:"";position:absolute;left:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent #e5e7eb transparent transparent}
+  .bubble-left:before{content:"";position:absolute;left:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent #f8fafc transparent transparent}
+  .bubble-right:after{content:"";position:absolute;right:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #1d4ed8}
+  .bubble-right:before{content:"";position:absolute;right:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #3b82f6}
+  .bubble-name{font-weight:600;font-size:.875rem;margin-bottom:.125rem}
+  .avatar{width:40px;height:40px;border-radius:9999px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+  .bubble-right .bubble-name{color:#eaf2ff}
+  .bubble-right a{color:#fff;text-decoration:underline}
+  .bubble-right b,.bubble-right strong{color:#fff}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+<a class="inline-flex items-center gap-1 text-sm mb-4 text-blue-600 hover:underline" href="index.html?tab=quests" id="back-to-quests">← 퀘스트 목록으로</a>
+<article id="detail"></article>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const IMG = {
+    bruce: "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w256",
+    iyan: "https://drive.google.com/thumbnail?id=1Qh6RmsnBctbFC6zhtyAVOFCUVMPYiJtw&sz=w256",
+    henesys: "https://drive.google.com/thumbnail?id=1-mGJYGjekTQwGtgcRY5ip2iL1D7uXp7E&sz=1700x668",
+    perion: "https://drive.google.com/thumbnail?id=1nbA7-aR6XfVWbgFVh6jJo7czfta-LmDt&sz=1700x668",
+    toy: "https://drive.google.com/thumbnail?id=1BwyPTo3zGoZK_9U3m0XE7WZpNe2KQyCJ&sz=w256",
+  };
+
+  const q = {
+  "id": "21018",
+  "code": "아란 3-5",
+  "title": "기초 체력 테스트",
+  "type": "몬스터 사냥",
+  "region": "리엔",
+  "minLevel": 5,
+  "start": {
+    "npc": {
+      "name": "리린",
+      "img": "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+      "id": "1201000"
+    },
+    "place": {
+      "name": "리엔",
+      "img": "https://drive.google.com/thumbnail?id=1-Vur3U1Jw-nQaOLTLIHEOuPkcR5E4EWY&sz=w800",
+      "code": "140000000"
+    }
+  },
+  "finish": {
+    "npc": {
+      "name": "리린",
+      "img": "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+      "id": "1201000"
+    },
+    "place": {
+      "name": "리엔",
+      "img": "https://drive.google.com/thumbnail?id=1-Vur3U1Jw-nQaOLTLIHEOuPkcR5E4EWY&sz=w800",
+      "code": "140000000"
+    }
+  },
+  "dialogues": [
+    {
+      "who": "리린",
+      "text": "자, 그럼 이때까지 기초 체력을 한 번 테스트 해보도록 할게요. 방법은 간단해요. 이 섬에서 가장 강하고 흉폭한 몬스터, 무루쿤을 퇴치하면 돼요! 한 50마리 퇴치해 주시면 좋겠지만..."
+    },
+    {
+      "who": "리린",
+      "text": "몇 마리 없는 무루쿤을 다 퇴치해 버리는 건 생태계에 좋지 않은 것 같으니 5마리만 퇴치하도록 할게요. 자연과 환경을 생각하는 단련! 아, 아름답기도 해라..."
+    }
+  ],
+  "completionDialogues": [{"who": "리린", "text": "무루쿤 5마리를 모두 퇴치하고 오셨군요. 좋아요. 순조롭게 기초 체력이 쌓였네요. 얼음 속에서 굳어 있던 몸이 딱 수련하기 좋은 정도로 풀리셨어요. 그럼 이제부터 수련을 ... 어라?"}, {"who": "리린", "text": "아, 그러고 보니... 지금까지 영웅님의 성함도 모르고 있었네요. 다섯 명의 영웅들 중 한 명인 건 확실한데, 누구세요? ...아참, 기억이 없으시지..."}, {"who": "리린", "text": "이제부터 검은 마법사와 싸우기 위해 본격적인 수련을 시작해야 하는데, 당신이 어떤 영웅인지 알아야 그에 맞는 수련을 할 거 아니겠어요? 당신에게 맞지 않는 무기로 맞지 않는 스킬을 연마해 봤자, 검은 마법사와 싸우기엔 역부족일 테니까요."}, {"who": "리린", "text": "그런데... 영웅님은 대체 누구시죠?"}],
+  "descHtml": "리린은 기초 체력 테스트를 위해 무루쿤를 퇴치해 보자고 말했다. 이번에는 반대편인 마을 왼쯕의 얼음 벌판으로 가면 된다고 한다. 다행히 별로 어려운 일은 아닌 것 같다...",
+  "reqs": [
+    {
+      "name": "무루쿤",
+      "qty": 5,
+      "img": "https://drive.google.com/thumbnail?id=16vJu0-eS6RgIOmn5OmqUgcIyMAQqhpfp&sz=w400",
+      "itemId": "100134",
+      "type": "몬스터"
+    }
+  ],
+  "tips": [],
+  "rewards": [
+    {
+      "exp": 8400,
+      "img": "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w400"
+    }
+  ],
+  "prereqs": [
+    {
+      "id": "21017",
+      "title": "기초 체력 단련 3"
+    }
+  ],
+  "followups": []
+};
+
+  const img = (src, alt='', cls='') => `<img src="${src||''}" alt="${alt||''}" ${cls?`class="${cls}"`:''} onerror="this.style.display='none'">`;
+
+  const row = (labelLeft, imgLeft, nameLeft, labelRight, imgRight, nameRight, linkLeft='', linkRight='') => {
+    const cell = (label, imgSrc, name, link) => {
+      const inner = `${img(imgSrc, name)}<div class="text-sm"><div class="muted">${label}</div><div class="font-medium">${name||'-'}</div></div>`;
+      return link ? `<a class="row" href="${link}">${inner}</a>` : `<div class="row">${inner}</div>`;
+    };
+    return `<div class="row">${cell(labelLeft, imgLeft, nameLeft, linkLeft)}<div class="muted" style="padding:0 .5rem">|</div>${cell(labelRight, imgRight, nameRight, linkRight)}</div>`;
+  };
+
+  const rewardBox = r => {
+    if (typeof r.exp === 'number') {
+      const pic = img(r.img, 'EXP', 'thumb');
+      const txt = `<div class="text-sm font-medium">경험치 ${r.exp.toLocaleString()} exp</div>`;
+      return `<div class="ibox">${pic}${txt}</div>`;
+    }
+    const title = `${r.name||''}${(r.qty && r.qty>0) ? ' ×'+r.qty : ''}`;
+    const pic = img(r.img, r.name, 'thumb');
+    const inner = `<div class="text-sm font-medium">${title}</div>`;
+    return r.itemId ? `<a class="ibox" href="item-${r.itemId}">${pic}${inner}</a>` : `<div class="ibox">${pic}${inner}</div>`;
+  };
+
+  const reqItemBox = r => {
+  const qtyPart = (r.qty && r.qty>0) ? (' ×'+r.qty) : (r.qty===0 ? ' (전달)' : (r.qty<0 ? ' (사용)' : ''));
+  const title = `${r.name}${qtyPart}`;
+  const pic = img(r.img, r.name, 'thumb');
+  const inner = `<div class="text-sm font-medium">${title}</div>`; // no ID line for reqs
+  return r.itemId ? `<a class="ibox" href="item-${r.itemId}">${pic}${inner}</a>` : `<div class="ibox">${pic}${inner}</div>`;
+};
+
+  const isPlayer = (w) => /^(나|플레이어|주인공|Player|영웅)$/i.test((w||'').toString().trim());
+  const avatarFor = (who) => {
+    if (who === (q.start.npc && q.start.npc.name)) return q.start.npc.img;
+    if (who === (q.finish.npc && q.finish.npc.name)) return q.finish.npc.img;
+    return '';
+  };
+  const dialogueRow = (d) => {
+    d = d || { };
+    const left = !isPlayer(d.who);
+    const av = left ? avatarFor(d.who) : '';
+    const avatar = (left && av) ? `<img class="avatar" src="${av}" alt="${d.who||''}" onerror="this.style.display='none'">` : '';
+    return `<div class="flex items-start ${left ? 'justify-start' : 'justify-end'} gap-2">${left ? avatar : ''}<div class="bubble ${left ? 'bubble-left' : 'bubble-right'}"><div class="bubble-name">${d.who||''}</div><div class="text-sm leading-snug">${d.text||''}</div></div></div>`;
+  };
+
+  const tipsSection = (tips=[]) => {
+    const list = Array.isArray(tips) ? tips : [];
+    if (!list.length) return '';
+    const boxes = list.map(t => {
+      if (typeof t === 'string') return `<div class="ibox"><div class="text-sm font-medium">${t}</div></div>`;
+      const pic = t.img ? img(t.img, t.name || 'TIP', 'thumb') : '';
+      const meta = `${t.subtitle || (t.level != null ? 'Lv.'+t.level : '')}`;
+      const text = `<div>${t.name ? `<div class="text-sm font-medium">${t.name}</div>` : ''}${meta ? `<div class="muted" style="font-size:12px">${meta}</div>` : ''}</div>`;
+      const href = t.id ? `monster-${t.id}` : (t.link||t.url||'');
+      return href ? `<a class="ibox" href="${href}">${pic}${text}</a>` : `<div class="ibox">${pic}${text}</div>`;
+    }).join('');
+    return `<section class="mb-10"><h2 class="text-sm font-semibold mb-2">TIP</h2><div class="grid">${boxes}</div></section>`;
+  };
+
+  const prereqSection = (list=[]) => {
+    if (!Array.isArray(list) || !list.length) return '';
+    const boxes = list.map(p => {
+      const href = `quest-${p.id}`;
+      return `<a class="ibox" href="${href}"><div class="text-sm"><div class="muted">선행 퀘스트</div><div class="font-medium">[${p.id}] ${p.title}</div></div></a>`;
+    }).join('');
+    return `<section class="mb-6"><h2 class="text-sm font-semibold mb-2">선행 퀘스트</h2><div class="grid">${boxes}</div></section>`;
+  };
+
+  const $detail = document.getElementById('detail');
+  $detail.innerHTML = `
+    <header class="mb-4">
+      <h1 class="text-2xl font-bold">${q.code} · ${q.title}</h1>
+      <p class="text-sm muted">${q.region} · ${q.type} · Lv.${q.minLevel}</p>
+    </header>
+
+    ${prereqSection(q.prereqs)}
+
+    <section class="grid" style="grid-template-columns:1fr 1fr;">
+      <div class="card">
+        <h2 class="text-sm font-semibold mb-3">시작</h2>
+        ${row('시작 NPC', q.start.npc.img, q.start.npc.name, '시작 장소', q.start.place.img, q.start.place.name, (q.start.npc.id?`npc-${q.start.npc.id}`:''), (q.start.place.code?`map-${q.start.place.code}`:''))}
+      </div>
+      <div class="card">
+        <h2 class="text-sm font-semibold mb-3">완료</h2>
+        ${row('완료 NPC', q.finish.npc.img, q.finish.npc.name, '완료 장소', q.finish.place.img, q.finish.place.name, (q.finish.npc.id?`npc-${q.finish.npc.id}`:''), (q.finish.place.code?`map-${q.finish.place.code}`:''))}
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold mb-2">대사</h2>
+      <div class="card" style="display:grid; gap:.5rem">
+        ${(q.dialogues || []).map(dialogueRow).join('')}
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold mb-2">퀘스트 조건</h2>
+      <div class="card text-sm leading-relaxed text-gray-800 mb-3">${q.descHtml}</div>
+      <div class="grid">
+        ${(q.reqs || []).map(reqItemBox).join('')}
+      </div>
+
+      ${tipsSection(q.tips)}
+
+      ${(q.completionDialogues && q.completionDialogues.length) ? `
+      <div class="mt-4 pt-3 border-t">
+        <h2 class="text-sm font-semibold mb-2">완료 대사</h2>
+        <div class="card">${(q.completionDialogues || []).map(dialogueRow).join("")}</div>
+      </div>` : ''}
+    </section>
+
+    ${(q.rewards && q.rewards.length) ? `
+    <section class="mb-10">
+      <h2 class="text-sm font-semibold mb-2">완료 보상</h2>
+      <div class="grid">
+        ${q.rewards.map(rewardBox).join('')}
+      </div>
+    </section>` : ''}
+  `;
+})();
+</script>
+
+<script>
+(function(){
+  var a = document.getElementById('back-to-quests');
+  if(!a) return;
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    try{
+      var href = this.getAttribute('href') || 'index.html?tab=quests';
+      var u = href + (href.indexOf('?')>-1 ? '&' : '?') + 'nocache=' + Date.now();
+      location.replace(u);
+    }catch(err){
+      location.href = 'index.html?tab=quests';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

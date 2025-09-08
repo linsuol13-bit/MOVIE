@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>퀘스트 상세 • 로나월드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+  .card{border:1px solid #e5e7eb;border-radius:.75rem;background:#fff;padding:1rem}
+  .muted{color:#6b7280}
+  .row{display:flex;align-items:center;gap:.75rem}
+  .grid{display:grid;gap:1rem}
+  img{max-width:100%;height:auto}
+  .thumb{width:56px;height:56px;object-fit:contain;background:#fff;border:1px solid #e5e7eb;border-radius:.5rem;padding:4px}
+  .ibox{display:flex;align-items:center;gap:.75rem;padding:.5rem;border:1px solid #e5e7eb;border-radius:.75rem;background:#fff;transition:background .15s ease}
+  .ibox:hover{background:#f9fafb}
+  .bubble{position:relative;max-width:80%;padding:.625rem .75rem;border-radius:1rem;line-height:1.45;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bubble-left{background:#f8fafc;border:1px solid #e5e7eb;color:#111827}
+  .bubble-right{background:#3b82f6;border:1px solid #1d4ed8;color:#fff}
+  .bubble-left:after{content:"";position:absolute;left:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent #e5e7eb transparent transparent}
+  .bubble-left:before{content:"";position:absolute;left:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent #f8fafc transparent transparent}
+  .bubble-right:after{content:"";position:absolute;right:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #1d4ed8}
+  .bubble-right:before{content:"";position:absolute;right:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #3b82f6}
+  .bubble-name{font-weight:600;font-size:.875rem;margin-bottom:.125rem}
+  .avatar{width:40px;height:40px;border-radius:9999px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+  <a class="inline-flex items-center gap-1 text-sm mb-4 text-blue-600 hover:underline" href="index.html?tab=quests" id="back-to-quests">← 퀘스트 목록으로</a>
+  <article id="detail"></article>
+</div>
+<script>
+(()=>{
+  'use strict';
+  const q = {
+  "id": "3432",
+  "code": "의무병 라이스 1-3",
+  "title": "마티안의 촉수 300개 모으기",
+  "type": "아이템 수집",
+  "region": "지구방위본부",
+  "minLevel": 40,
+  "start": {
+    "npc": {
+      "name": "의무병 라이스",
+      "img": "https://drive.google.com/thumbnail?id=1GNYBV-cNHgJuuJy36YssORWIZ9pdC8Sn&sz=w200",
+      "id": "2050010"
+    },
+    "place": {
+      "name": "지구방위본부",
+      "img": "https://drive.google.com/thumbnail?id=1_dgivVSRcnUb-FDG9WANcQ9Z_QIq02Ux&sz=w800",
+      "code": "221000000"
+    }
+  },
+  "finish": {
+    "npc": {
+      "name": "의무병 라이스",
+      "img": "https://drive.google.com/thumbnail?id=1GNYBV-cNHgJuuJy36YssORWIZ9pdC8Sn&sz=w200",
+      "id": "2050010"
+    },
+    "place": {
+      "name": "지구방위본부",
+      "img": "https://drive.google.com/thumbnail?id=1_dgivVSRcnUb-FDG9WANcQ9Z_QIq02Ux&sz=w800",
+      "code": "221000000"
+    }
+  },
+  "dialogues": [
+    {
+      "who": "의무병 라이스",
+      "text": "다시 돌아와 주셨군요. 마침 지난번에 모아와 주신 재료가 떨어지던 참이었는데 잘됐어요. 촉수를 여러 가지 방법으로 추출해 보고 있는데 외계 생명체의 것이라서 그런지 쉽지가 않더라구요. 그럼 다시 한번 저를 위해 재료를 모아와 주시겠어요?"
+    },
+    {
+      "who": "의무병 라이스",
+      "text": "또 다시 도와주신다니 정말 고마워요! 외계인의 독 공격에 대항할 수 있는 해독제가 하루 빨리 만들어지기를 상부에서도 기대하고 있답니다. 하지만 지난번에 모아와 주신 재료가 모두 떨어져서 말이죠 ….. 마티안의 촉수 300개만 모아와 주세요. 그럼 잘 부탁 드려요~"
+    }
+  ],
+  "completionDialogues": [
+    {
+      "who": "의무병 라이스",
+      "text": "돌아와 주셨군요. 부탁드린 마티안의 촉수 300개는 전부 모아오신 모양이죠? 좋아요! 드디어 해독제 연구를 계속할 수 있겠군요. 그럼 별 것 아니지만 당신에게 도움이 될 만한 물건을 드릴테니 부디 유용하게 쓰이길 바래요."
+    },
+    {
+      "who": "의무병 라이스",
+      "text": "정말 좋은 품질의 촉수들로 모아와 주셨군요. 표면에 흐르는 보라색 액체가 보이시나요? 아마도 맹독으로 보이는데 보기만 해도 살이 떨리는걸요? 자 .. 이제 하던 연구를 계속해야 겠어요. 하지만 재료가 언제 다 떨어질지 모르니 수시로 저를 찾아와 주셨으면 해요. 그럼 안녕히!"
+    }
+  ],
+  "descHtml": "<p>라이스는 연구는 잘 진행되고 있지만 예상보다 재료가 많이 필요해서 이걸로는 턱 없이 부족한 모양이었다. 라이스에게 마티안의 촉수 300개를 다시 가져다 주어야 한다.</p>",
+  "reqs": [
+    {
+      "kind": "item",
+      "name": "마티안의 촉수",
+      "img": "https://drive.google.com/thumbnail?id=18opZSyhKMmttqM33dwAOiAC074iYpnn9&sz=w200",
+      "qty": 300,
+      "id": "4000120"
+    }
+  ],
+  "tips": [
+    {
+      "kind": "monster",
+      "name": "마티안",
+      "level": 41,
+      "img": "https://drive.google.com/thumbnail?id=1MfddapbifQtjtD2bwjjMEX8kd_8s26vL&sz=w200",
+      "id": "4230119"
+    }
+  ],
+  "rewards": [
+    {
+      "name": "엘릭서",
+      "img": "https://drive.google.com/thumbnail?id=1WQKAOc0vettHB8PmqO5l-En10mhyYA6m&sz=w200",
+      "qty": 50,
+      "itemId": "2000004"
+    },
+    {
+      "exp": 91000,
+      "img": "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200"
+    }
+  ],
+  "prereqs": [
+    {
+      "id": "3431",
+      "title": "마티안의 촉수 200개 모으기"
+    }
+  ],
+  "nexts": [
+    {
+      "id": "3433",
+      "title": "마티안의 촉수 400개 모으기"
+    }
+  ]
+};
+
+  const img=(src,alt='',cls='')=>`<img src="${src||''}" alt="${alt||''}" ${cls?`class="${cls}"`:''} onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace('thumbnail?id=','uc?export=view&id=');}else{this.style.display='none'}">`;
+  const row=(l,il,nl,r,ir,nr,ll='',lr='')=>{const cell=(label,im,name,link)=>{const inner=`${img(im,name)}<div class='text-sm'><div class='muted'>${label}</div><div class='font-medium'>${name||'-'}</div></div>`;return link?`<a class='row' href='${link}'>${inner}</a>`:`<div class='row'>${inner}</div>`;};return `<div class='row'>${cell(l,il,nl,ll)}<div class='muted' style='padding:0 .5rem'>|</div>${cell(r,ir,nr,lr)}</div>`;};
+  const rewardBox=r=>{
+    if(typeof r.exp==='number'){
+      const pic=img(r.img,'EXP','thumb');
+      const txt=`<div class='text-sm font-medium'>경험치 ${r.exp.toLocaleString()} exp</div>`;
+      return `<div class='ibox'>${pic}${txt}</div>`;
+    }
+    const isMeso = (r.name||'').trim()==='메소' && (r.qty||0)>0;
+    const title = isMeso
+      ? `${Number(r.qty).toLocaleString()} 메소`
+      : `${r.name||''}${(r.qty&&r.qty>0)?' ×'+Number(r.qty).toLocaleString():''}`;
+    const pic=img(r.img,r.name,'thumb');
+    const inner=`<div class='text-sm font-medium'>${title}</div>`;
+    return r.itemId?`<a class='ibox' href='https://linsuol13-bit.github.io/LO/item-${r.itemId}.html'>${pic}${inner}</a>`:`<div class='ibox'>${pic}${inner}</div>`;
+  };
+  const reqBox=r=>{
+    const isItem=r.kind==='item';
+    const qty = (r.qty||0)>0 ? ` ×${Number(r.qty).toLocaleString()}` : '';
+    const title=isItem?`${r.name}${qty}`:`${r.name}${qty}`;
+    const pic=img(r.img,r.name,'thumb');
+    const href = r.id ? (isItem ? `https://linsuol13-bit.github.io/LO/item-${r.id}.html` : `https://linsuol13-bit.github.io/LO/monster-${r.id}.html`) : '';
+    const inner = `${pic}<div class='text-sm'><div class='muted'>${isItem?'필요 아이템':'처치 대상'}</div><div class='font-medium'>${title}</div></div>`;
+    return href?`<a class='ibox' href='${href}'>${inner}</a>`:`<div class='ibox'>${inner}</div>`;
+  };
+  const isPlayer=w=>/^(나|플레이어|주인공|Player|영웅)$/i.test((w||'').toString().trim());
+  const avatarFor=who=>{
+    if(q.start && q.start.npc && who===q.start.npc.name) return q.start.npc.img;
+    if(q.finish && q.finish.npc && who===q.finish.npc.name) return q.finish.npc.img;
+    return '';
+  };
+  const dialogueRow=d=>{
+    d=d||{};const left=!isPlayer(d.who);const av=left?avatarFor(d.who):'';
+    const avatar=(left&&av)?`<img class='avatar' src='${av}' alt='${d.who||''}' onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace('thumbnail?id=','uc?export=view&id=');}else{this.style.display='none'}">`:'';
+    return `<div class='flex items-start ${left?'justify-start':'justify-end'} gap-2'>${left?avatar:''}<div class='bubble ${left?'bubble-left':'bubble-right'}'><div class='bubble-name'>${d.who||''}</div><div class='text-sm leading-snug' style='white-space:pre-line'>${d.text||''}</div></div></div>`;
+  };
+  const prereqSection=list=>{if(!Array.isArray(list)||!list.length)return'';const boxes=list.map(p=>`<a class='ibox' href='https://linsuol13-bit.github.io/LO/quest-${p.id}.html'><div class='text-sm'><div class='muted'>선행 퀘스트</div><div class='font-medium'>[${p.id}] ${p.title}</div></div></a>`).join('');return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>선행 퀘스트</h2><div class='grid'>${boxes}</div></section>`;};
+  const nextSection=list=>{if(!Array.isArray(list)||!list.length)return'';const boxes=list.map(n=>`<a class='ibox' href='https://linsuol13-bit.github.io/LO/quest-${n.id}.html'><div class='text-sm'><div class='muted'>다음 퀘스트</div><div class='font-medium'>[${n.id}] ${n.title}</div></div></a>`).join('');return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>다음 퀘스트</h2><div class='grid'>${boxes}</div></section>`;};
+  const reqSection=list=>{if(!Array.isArray(list)||!list.length)return'';return `<div class='mt-3'><div class='muted text-xs mb-1'>요구 조건</div><div class='grid' style='grid-template-columns:1fr 1fr; gap:.75rem'>${list.map(reqBox).join('')}</div></div>`;};
+  const tipBox=t=>{
+    const pic=img(t.img,t.name,'thumb');
+    const subtitle = t.kind==='monster' ? '몬스터 사냥' : (t.subtitle||'TIP');
+    const title=`${t.name}${t.level?` (Lv.${t.level})`:''}`;
+    const href = t.id ? (t.kind==='monster' ? `https://linsuol13-bit.github.io/LO/monster-${t.id}.html` : `https://linsuol13-bit.github.io/LO/item-${t.id}.html`) : '';
+    const inner = `${pic}<div class='text-sm'><div class='muted'>${subtitle}</div><div class='font-medium'>${title}</div></div>`;
+    return href?`<a class='ibox' href='${href}'>${inner}</a>`:`<div class='ibox'>${inner}</div>`;
+  };
+  const tipsSection=list=>{ if(!Array.isArray(list)||!list.length) return ''; return `<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>TIP</h2><div class='grid'>${list.map(tipBox).join('')}</div></section>`; };
+
+  const $detail=document.getElementById('detail');
+  $detail.innerHTML=`
+    <header class='mb-4'><h1 class='text-2xl font-bold'>${q.code} · ${q.title}</h1><p class='text-sm muted'>${q.region} · ${q.type} · Lv.${q.minLevel}</p></header>
+    ${prereqSection(q.prereqs)}
+    <section class='grid' style='grid-template-columns:1fr 1fr; align-items:stretch;'>
+      <div class='card'><h2 class='text-sm font-semibold mb-3'>시작</h2>${row('시작 NPC', q.start.npc.img, q.start.npc.name, '시작 장소', q.start.place.img, q.start.place.name, (q.start.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.start.npc.id}.html`:''), (q.start.place.code?`https://linsuol13-bit.github.io/LO/map-${q.start.place.code}.html`:''))}</div>
+      <div class='card'><h2 class='text-sm font-semibold mb-3'>완료</h2>${row('완료 NPC', q.finish.npc.img, q.finish.npc.name, '완료 장소', q.finish.place.img, q.finish.place.name, (q.finish.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.finish.npc.id}.html`:''), (q.finish.place.code?`https://linsuol13-bit.github.io/LO/map-${q.finish.place.code}.html`:''))}</div>
+    </section>
+    <section class='mb-6'><h2 class='text-sm font-semibold mb-2'>대사</h2><div class='card' style='display:grid; gap:.5rem'>${(q.dialogues||[]).map(dialogueRow).join('')}</div></section>
+    <section class='mb-6'><h2 class='text-sm font-semibold mb-2'>퀘스트 조건</h2><div class='card text-sm leading-relaxed text-gray-800 mb-3'>${q.descHtml}</div>${reqSection(q.reqs)}
+      ${tipsSection(q.tips)}
+      ${(q.completionDialogues&&q.completionDialogues.length)?`
+      <div class='mt-4 pt-3 border-t'><h2 class='text-sm font-semibold mb-2'>완료 대사</h2><div class='card'>${(q.completionDialogues||[]).map(dialogueRow).join("")}</div></div>`:''}
+    </section>
+    ${(q.rewards&&q.rewards.length)?`<section class='mb-6'><h2 class='text-sm font-semibold mb-2'>완료 보상</h2><div class='grid'>${q.rewards.map(rewardBox).join('')}</div></section>`:''}
+    ${nextSection(q.nexts)}
+  `;
+})();
+</script>
+<script>
+(function(){
+  var a=document.getElementById('back-to-quests');
+  if(!a) return;
+  a.addEventListener('click',function(e){
+    e.preventDefault();
+    try{
+      var href=this.getAttribute('href')||'index.html?tab=quests';
+      var u=href+(href.indexOf('?')>-1?'&':'?')+'nocache='+Date.now();
+      location.replace(u);
+    }catch(err){ location.href='index.html?tab=quests'; }
+  });
+})();
+</script>
+</body>
+</html>

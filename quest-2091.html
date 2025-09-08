@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>퀘스트 상세 • 로나월드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  .card { border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; padding:1rem; }
+  .muted { color:#6b7280; }
+  .row { display:flex; align-items:center; gap:.75rem; }
+  .grid { display:grid; gap:1rem; }
+  img { max-width:100%; height:auto; }
+  .thumb { width:56px; height:56px; object-fit:contain; background:#fff; border:1px solid #e5e7eb; border-radius:0.5rem; padding:4px; }
+  .ibox { display:flex; align-items:center; gap:.75rem; padding:.5rem; border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; transition: background .15s ease; }
+  .ibox:hover { background:#f9fafb; }
+
+  /* Speech bubbles */
+  .bubble{position:relative;max-width:80%;padding:.625rem .75rem;border-radius:1rem;line-height:1.45;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bubble-left{background:#f8fafc;border:1px solid #e5e7eb;color:#111827}
+  .bubble-right{background:#3b82f6;border:1px solid #1d4ed8;color:#fff}
+  .bubble-left:after{content:"";position:absolute;left:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent #e5e7eb transparent transparent}
+  .bubble-left:before{content:"";position:absolute;left:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent #f8fafc transparent transparent}
+  .bubble-right:after{content:"";position:absolute;right:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #1d4ed8}
+  .bubble-right:before{content:"";position:absolute;right:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #3b82f6}
+  .bubble-name{font-weight:600;font-size:.875rem;margin-bottom:.125rem}
+  .avatar{width:40px;height:40px;border-radius:9999px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+  .bubble-right .bubble-name{color:#eaf2ff}
+  .bubble-right a{color:#fff;text-decoration:underline}
+  .bubble-right b,.bubble-right strong{color:#fff}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+<a class="inline-flex items-center gap-1 text-sm mb-4 text-blue-600 hover:underline" href="index.html?tab=quests" id="back-to-quests">← 퀘스트 목록으로</a>
+<article id="detail"></article>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const q = {
+    id: "2091",
+    code: "이카루스 1-2",
+    title: "심심해요 2",
+    type: "아이템 수집",
+    region: "커닝시티",
+    minLevel: 10,
+    start: {
+      npc: {
+        name: "이카루스",
+        img: "https://drive.google.com/thumbnail?id=11HAbvWVKmE75xKLb-o5bdNcqpOKJ1jd3&sz=w400",
+        id: "1052106"
+      },
+      place: {
+        name: "커닝시티",
+        img: "https://drive.google.com/thumbnail?id=1tAWYuAvX4hZY8JI0O1N57caFetngar8L&sz=w800",
+        code: "103000000"
+      }
+    },
+    finish: {
+      npc: {
+        name: "이카루스",
+        img: "https://drive.google.com/thumbnail?id=11HAbvWVKmE75xKLb-o5bdNcqpOKJ1jd3&sz=w400",
+        id: "1052106"
+      },
+      place: {
+        name: "커닝시티",
+        img: "https://drive.google.com/thumbnail?id=1tAWYuAvX4hZY8JI0O1N57caFetngar8L&sz=w800",
+        code: "103000000"
+      }
+    },
+    dialogues: [
+      {
+        who: "이카루스",
+        text: "너 문제 잘 풀던데~ 그런데 난 아직도 심심해... 부탁 한가지만 더 들어줘~ 여기 옥상에서 가지고 놀 것이 필요한데 나뭇가지 40개와 물컹물컹한 액체 40개를 구해줬으면 좋겠어~ 부탁해!"
+      },
+      {
+        who: "이카루스",
+        text: "그럼 난 여기서 기다리고 있을게. 빨리 돌아와야해~"
+      }
+    ],
+    completionDialogues: [
+      {
+        who: "이카루스",
+        text: "와! 정말 다 가지고 왔네~ 정말 고마워 이제는 안 심심할 거야. 이거 어떻게 보답을 해주지 …. 자 이것 받어~"
+      }
+    ],
+    descHtml: "커닝시티의 이카루스... 그가 낸 문제를 모두 맞추었는데 아직도 심심하다고 한다. 나에게 옥상에서 가지고 놀 장난감을 구해달라고 부탁했다.",
+    reqs: [
+      {
+        type: "아이템",
+        name: "나뭇가지",
+        img: "https://drive.google.com/thumbnail?id=1B6wKY9CaI5-70xYt6-HCRnRKLRl2O90m&sz=w256",
+        qty: 40,
+        itemId: "4000003"
+      },
+      {
+        type: "아이템",
+        name: "물컹물컹한 액체",
+        img: "https://drive.google.com/thumbnail?id=1bIjg84sU_Gwce04X2K0jjiLa7HY66cfJ&sz=w256",
+        qty: 40,
+        itemId: "4000004"
+      }
+    ],
+    tips: [
+      "스텀프 , 슬라임 사냥",
+      {
+        name: "스텀프",
+        level: 4,
+        img: "https://drive.google.com/thumbnail?id=18kFEe3umbEPhTEby-nEkqXxYtICs5Xhy&sz=w256",
+        id: "100005"
+      },
+      {
+        name: "슬라임",
+        level: 7,
+        img: "https://drive.google.com/thumbnail?id=1X6Qn_Hq--YtD0NEyE0tUArETmwDt_7aq&sz=w256",
+        id: "100006"
+      }
+    ],
+    rewards: [
+      {
+        name: "빨간 포션",
+        img: "https://drive.google.com/thumbnail?id=1G0LAdVgpUNTuDPydykT1zEgKHjLiNhhe&sz=w256",
+        qty: 25,
+        itemId: "2000000"
+      },
+      {
+        name: "파란 포션",
+        img: "https://drive.google.com/thumbnail?id=1RWW2pkOJTnmhvKz-2R5bk0FKqRyvab-E&sz=w256",
+        qty: 15,
+        itemId: "2000003"
+      },
+      {
+        exp: 1750,
+        img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w400"
+      }
+    ],
+    prereqs: [
+      { id: "2090", title: "심심해요 1" }
+    ],
+    nexts: []
+  };
+
+  // helpers
+  const img = (src, alt='', cls='') => `<img src="${src||''}" alt="${alt||''}" ${cls?`class="${cls}"`:''} onerror="fallbackImg(this)">`;
+
+  const row = (labelLeft, imgLeft, nameLeft, labelRight, imgRight, nameRight, linkLeft='', linkRight='') => {
+    const cell = (label, imgSrc, name, link) => {
+      const inner = `${img(imgSrc, name)}<div class="text-sm"><div class="muted">${label}</div><div class="font-medium">${name||'-'}</div></div>`;
+      return link ? `<a class="row" href="${link}">${inner}</a>` : `<div class="row">${inner}</div>`;
+    };
+    return `<div class="row">${cell(labelLeft, imgLeft, nameLeft, linkLeft)}<div class="muted" style="padding:0 .5rem">|</div>${cell(labelRight, imgRight, nameRight, linkRight)}</div>`;
+  };
+
+  const rewardBox = r => {
+    if (typeof r.exp === 'number') {
+      const pic = img(r.img, 'EXP', 'thumb');
+      const txt = `<div class="text-sm font-medium">경험치 ${r.exp.toLocaleString()} exp</div>`;
+      return `<div class="ibox">${pic}${txt}</div>`;
+    }
+    const title = `${r.name||''}${(r.qty && r.qty>0) ? ' ×'+r.qty : ''}`;
+    const pic = img(r.img, r.name, 'thumb');
+    const inner = `<div class="text-sm font-medium">${title}</div>`;
+    return r.itemId ? `<a class="ibox" href="https://linsuol13-bit.github.io/LO/item-${r.itemId}.html">${pic}${inner}</a>` : `<div class="ibox">${pic}${inner}</div>`;
+  };
+
+  const reqItemBox = r => {
+    const qtyPart = (r.qty && r.qty>0) ? (' ×'+r.qty) : (r.qty===0 ? ' (전달)' : (r.qty<0 ? ' (사용)' : ''));
+    const title = `${r.name}${qtyPart}`;
+    const pic = img(r.img, r.name, 'thumb');
+    const inner = `<div class="text-sm font-medium">${title}</div>`;
+    let href = '';
+    if (r.itemId) {
+      const t = (r.type||'');
+      if (t.includes('몬스터')) href = `https://linsuol13-bit.github.io/LO/monster-${r.itemId}.html`;
+      else if (t.includes('아이템')) href = `https://linsuol13-bit.github.io/LO/item-${r.itemId}.html`;
+    }
+    return href ? `<a class="ibox" href="${href}">${pic}${inner}</a>` : `<div class="ibox">${pic}${inner}</div>`;
+  };
+
+  const isPlayer = (w) => /^(나|플레이어|주인공|Player|영웅)$/i.test((w||'').toString().trim());
+  const avatarFor = (who) => {
+    if (who === (q.start.npc && q.start.npc.name)) return q.start.npc.img;
+    if (who === (q.finish.npc && q.finish.npc.name)) return q.finish.npc.img;
+    return '';
+  };
+  const dialogueRow = (d) => {
+    d = d || { };
+    const left = !isPlayer(d.who);
+    const av = left ? avatarFor(d.who) : '';
+    const avatar = (left && av) ? `<img class="avatar" src="${av}" alt="${d.who||''}" onerror="fallbackImg(this)">` : '';
+    return `<div class="flex items-start ${left ? 'justify-start' : 'justify-end'} gap-2">${left ? avatar : ''}<div class="bubble ${left ? 'bubble-left' : 'bubble-right'}"><div class="bubble-name">${d.who||''}</div><div class="text-sm leading-snug">${d.text||''}</div></div></div>`;
+  };
+
+  const tipsSection = (tips=[]) => {
+    const list = Array.isArray(tips) ? tips : [];
+    if (!list.length) return '';
+    const boxes = list.map(t => {
+      if (typeof t === 'string') return `<div class="ibox"><div class="text-sm font-medium">${t}</div></div>`;
+      const pic = t.img ? img(t.img, t.name || 'TIP', 'thumb') : '';
+      const meta = `${t.subtitle || (t.level != null ? 'Lv.'+t.level : '')}`;
+      const text = `<div>${t.name ? `<div class="text-sm font-medium">${t.name}</div>` : ''}${meta ? `<div class="muted" style="font-size:12px">${meta}</div>` : ''}</div>`;
+      const href = t.id ? `https://linsuol13-bit.github.io/LO/monster-${t.id}.html` : (t.link||t.url||'');
+      return href ? `<a class="ibox" href="${href}">${pic}${text}</a>` : `<div class="ibox">${pic}${text}</div>`;
+    }).join('');
+    return `<section class="mb-10"><h2 class="text-sm font-semibold mb-2">TIP</h2><div class="grid">${boxes}</div></section>`;
+  };
+
+  const prereqSection = (list=[]) => {
+    if (!Array.isArray(list) || !list.length) return '';
+    const boxes = list.map(p => {
+      const href = `https://linsuol13-bit.github.io/LO/quest-${p.id}.html`;
+      return `<a class="ibox" href="${href}"><div class="text-sm"><div class="muted">선행 퀘스트</div><div class="font-medium">[${p.id}] ${p.title}</div></div></a>`;
+    }).join('');
+    return `<section class="mb-6"><h2 class="text-sm font-semibold mb-2">선행 퀘스트</h2><div class="grid">${boxes}</div></section>`;
+  };
+
+  const nextSection = (list=[]) => {
+    if (!Array.isArray(list) || !list.length) return '';
+    const boxes = list.map(n => {
+      const href = `https://linsuol13-bit.github.io/LO/quest-${n.id}.html`;
+      return `<a class="ibox" href="${href}">
+                <div class="text-sm">
+                  <div class="muted">다음 퀘스트</div>
+                  <div class="font-medium">[${n.id}] ${n.title}</div>
+                </div>
+              </a>`;
+    }).join('');
+    return `<section class="mb-6">
+              <h2 class="text-sm font-semibold mb-2">다음 퀘스트</h2>
+              <div class="grid">${boxes}</div>
+            </section>`;
+  };
+
+  const $detail = document.getElementById('detail');
+  $detail.innerHTML = `
+    <header class="mb-4">
+      <h1 class="text-2xl font-bold">${q.code} · ${q.title}</h1>
+      <p class="text-sm muted">${q.region} · ${q.type} · Lv.${q.minLevel}</p>
+    </header>
+
+    ${prereqSection(q.prereqs)}
+
+    <section class="grid" style="grid-template-columns:1fr 1fr;">
+      <div class="card">
+        <h2 class="text-sm font-semibold mb-3">시작</h2>
+        ${row('시작 NPC', q.start.npc.img, q.start.npc.name, '시작 장소', q.start.place.img, q.start.place.name, (q.start.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.start.npc.id}.html`:''), (q.start.place.code?`https://linsuol13-bit.github.io/LO/map-${q.start.place.code}.html`:''))}
+      </div>
+      <div class="card">
+        <h2 class="text-sm font-semibold mb-3">완료</h2>
+        ${row('완료 NPC', q.finish.npc.img, q.finish.npc.name, '완료 장소', q.finish.place.img, q.finish.place.name, (q.finish.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.finish.npc.id}.html`:''), (q.finish.place.code?`https://linsuol13-bit.github.io/LO/map-${q.finish.place.code}.html`:''))}
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold mb-2">대사</h2>
+      <div class="card" style="display:grid; gap:.5rem">
+        ${(q.dialogues || []).map(dialogueRow).join('')}
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold mb-2">퀘스트 조건</h2>
+      <div class="card text-sm leading-relaxed text-gray-800 mb-3">${q.descHtml}</div>
+      <div class="grid">
+        ${(q.reqs || []).map(reqItemBox).join('')}
+      </div>
+
+      ${tipsSection(q.tips)}
+
+      ${(q.completionDialogues && q.completionDialogues.length) ? `
+      <div class="mt-4 pt-3 border-t">
+        <h2 class="text-sm font-semibold mb-2">완료 대사</h2>
+        <div class="card">${(q.completionDialogues || []).map(dialogueRow).join("")}</div>
+      </div>` : ''}
+    </section>
+
+    ${(q.rewards && q.rewards.length) ? `
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold mb-2">완료 보상</h2>
+      <div class="grid">
+        ${q.rewards.map(rewardBox).join('')}
+      </div>
+    </section>` : ''}
+
+    ${nextSection(q.nexts)}
+  `;
+})();
+</script>
+
+<script>
+(function(){
+  var a = document.getElementById('back-to-quests');
+  if(!a) return;
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    try{
+      var href = this.getAttribute('href') || 'index.html?tab=quests';
+      var u = href + (href.indexOf('?')>-1 ? '&' : '?') + 'nocache=' + Date.now();
+      location.replace(u);
+    }catch(err){
+      location.href = 'index.html?tab=quests';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

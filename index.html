@@ -1,0 +1,3150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로나월드 </title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif; background:#f8fafc; color:#111827; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:12px; transition: box-shadow .2s; }
+  .card:hover{ box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  .btn { border:0; background:#111827; color:#fff; padding:8px 12px; border-radius:10px; cursor:pointer; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .tabs { display:inline-flex; background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:4px; }
+  .tab { padding:8px 12px; border-radius:10px; background:transparent; color:#374151; cursor:pointer; border:0; }
+  .tab.on { background:#111827; color:#fff; }
+  .grid { display:grid; grid-template-columns: repeat(1, minmax(0,1fr)); gap:16px; }
+  @media (min-width:640px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  @media (min-width:1024px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+  @media (min-width:1280px){ .grid{ grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  .hidden { display:none; }
+  .thumb { width:60px; height:60px; object-fit:contain; background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:4px; }
+  .range { width:100%; }
+  .badge { font-size:12px; padding:2px 6px; border-radius:6px; background:#f3f4f6; border:1px solid #e5e7eb; }
+  .bar { width:100%; height:8px; background:#f3f4f6; border-radius:8px; overflow:hidden; }
+  .bar > div { height:100%; background:#10b981; }
+  .controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+  gap: 12px;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:12px;
+}
+.controls .ctrl{ min-width:0; }
+.controls .row-in{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.controls .badge{ white-space:nowrap; }
+.input, .select{ width:100%; box-sizing:border-box; }
+.range{ flex:1 1 140px; }
+  .label { font-size:12px; color:#6b7280; display:block; margin-bottom:6px; }
+  .input, .select { width:100%; border:1px solid #e5e7eb; border-radius:8px; padding:8px 10px; }
+  .error { background:#fff1f2; color:#991b1b; border:1px solid #fecaca; padding:8px 12px; border-radius:10px; margin-bottom:12px; white-space:pre-wrap; }
+  .row-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+  @media (max-width:768px){ .row-2{ grid-template-columns: 1fr; } }
+</style>
+
+<style>
+.q-badge{
+  display:inline-block;
+  margin-top:6px;
+  padding:2px 8px;
+  border-radius:9999px;
+  font-size:11px;
+  font-weight:600;
+  background:#f3f4f6;
+  color:#374151;
+  border:1px solid #e5e7eb;
+}
+.card[data-type="대화"] .q-badge{ background:#e0f2fe; color:#075985; border-color:#bae6fd; }
+.card[data-type="몬스터 사냥"] .q-badge{ background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+</style>
+
+
+<style>
+.badge-fame{
+  display:inline-block;
+  padding:.125rem .375rem;
+  margin-left:.375rem;
+  border-radius:.375rem;
+  font-size:.75rem;
+  line-height:1;
+  background:#fef3c7; /* amber-100 */
+  border:1px solid #f59e0b; /* amber-500 */
+  color:#92400e; /* amber-800 */
+  vertical-align:middle;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="errorBox" class="error hidden"></div>
+
+  <header class="row" style="align-items:center; justify-content:space-between; margin-bottom:8px;">
+    <div>
+      <h1 style="margin:0; font-size:24px; font-weight:700;">로나월드</h1>
+      <div style="font-size:12px; color:#6b7280;">몬스터 · 퀘스트 · 아이템</div>
+    </div>
+    <div><button id="resetBtn" class="btn">초기화</button></div>
+  </header>
+
+  <section class="controls">
+    
+      <div>
+        <label class="label">검색</label>
+        <input id="searchInput" class="input" placeholder="이름/지역/아이템 검색">
+      </div>
+      <div>
+        <label class="label">지역</label>
+        <select id="regionSelect" class="select"></select>
+      </div>
+    
+      <div style="flex:1;">
+        <label class="label">레벨 범위</label>
+        <div class="row-in">
+          <span id="lvMinBadge" class="badge">1</span>
+          <input id="lvMinRange" type="range" min="1" max="200" step="1" value="1" class="range">
+          <input id="lvMaxRange" type="range" min="1" max="200" step="1" value="200" class="range">
+          <span id="lvMaxBadge" class="badge">200</span>
+        </div>
+      </div>
+      <div class="ctrl" id="itemTypeWrap" style="flex:1; display:none;">
+        <label class="label">아이템 타입</label>
+        <select id="typeSelect" class="select"></select>
+      </div>
+      <div class="ctrl" id="questExpWrap" style="flex:1; display:none;">
+        <label class="label">경험치 비율(이상)</label>
+        <div class="row-in">
+          <span id="expRatioBadge" class="badge">0%</span>
+          <input id="expRatioMinRange" type="range" min="0" max="100" step="5" value="0" class="range">
+        </div>
+      </div>
+      <div class="ctrl" id="playerLevelWrap" style="flex:1; display:none;">
+        <label class="label">플레이어 레벨</label>
+        <input id="playerLevelInput" type="number" min="1" max="200" class="input" value="10">
+        <div id="playerHint" style="font-size:12px; color:#6b7280; margin-top:6px;">필터: 입력 레벨(≤) 이하만 표시 • 현재: 10</div>
+      </div>
+      <div class="ctrl" id="expBucketWrap" style="flex:1; display:none;">
+        <label class="label">경험치 통</label>
+        <input id="expBucketInput" type="text" class="input" value="10223168">
+        <div style="font-size:12px; color:#6b7280; margin-top:6px;">EXP 통: <span id="bucketLabelValue">10,223,168</span></div>
+      </div>
+    
+      <div class="ctrl" id="fameOnlyWrap" style="flex:1;">
+  <label class="label">인기도 보상</label>
+  <div class="row-in">
+    <input type="checkbox" id="fameOnlyCheckbox" class="input">
+    <span style="font-size:12px; color:#6b7280; margin-left:6px;">보상에 인기도 포함</span>
+  </div>
+</div>
+</section>
+
+  <nav class="tabs" style="margin-bottom:12px;">
+    <button class="tab on" data-tab="monsters">몬스터</button>
+    <button class="tab" data-tab="quests">퀘스트</button>
+    <button class="tab" data-tab="items">아이템</button>
+    <button class="tab" data-tab="npc">NPC</button>
+    <button class="tab" data-tab="maps">맵</button>
+  </nav>
+
+  <section id="listMonsters" class="grid"></section>
+  <section id="listQuests" class="grid hidden"></section>
+  <section id="listItems" class="grid hidden"></section>
+  <section id="listNPCs" class="grid hidden"></section>
+  <section id="listMaps" class="grid hidden"></section>
+
+  <footer style="margin-top:24px; text-align:center; font-size:12px; color:#6b7280;">
+    © <span id="yy"></span> 무비
+  </footer>
+</div>
+
+<script>
+(function(){
+  // Error banner
+  function showError(msg){
+    var box = document.getElementById('errorBox');
+    if(!box) return;
+    box.className = 'error';
+    box.textContent = msg;
+  }
+  window.onerror = function(msg, src, line, col, err){
+    showError('[JS 오류] ' + msg + '\n' + (src||'') + ':' + (line||'') + ':' + (col||''));
+  };
+
+  var yy = document.getElementById('yy');
+  if(yy){ yy.textContent = new Date().getFullYear(); }
+
+  // Helpers (ES5)
+  function byId(id){ return document.getElementById(id); }
+  function qs(sel){ return document.querySelector(sel); }
+  function qsa(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+  function formatNumber(n){ n = Number(String(n).replace(/[^0-9.-]/g,''))||0; return n.toLocaleString(); }
+  function uncomma(s){ return String(s||'').replace(/[^0-9]/g,''); }
+  function safeImg(src, alt, cls){
+    var d = 'https://placehold.co/120x120?text=NPC';
+    var s = '<img src="'+(src||d)+'" alt="'+(alt||'')+'" class="'+(cls||'thumb')+'" onerror="this.src=\''+d+'\';">';
+    return s;
+  }
+  function sumQuestExp(q){
+    var arr = q && q.rewards ? q.rewards : [];
+    var t = 0;
+    for(var i=0;i<arr.length;i++){
+      var r = arr[i];
+      if(r && typeof r.exp === 'number'){ t += r.exp; }
+    }
+    return t;
+  }
+  function computeExpRatio(q, bucket){
+    var b = Number(bucket||0); if(!b) return 0;
+    return Math.round((sumQuestExp(q)/b)*100);
+  }
+
+  // Data
+  window.DATA = window.DATA || { monsters: [], items: [], quests: [] };
+
+  // EXP table (safe)
+  var EXP_TABLE = {1:15,2:34,3:57,4:92,5:135,6:372,7:560,8:840,9:1242,10:1716,11:2360,12:3216,13:4200,14:5460,15:7050,16:8840,17:11040,18:13716,19:16680,20:20216,21:24402,22:28980,23:34320,24:40512,25:47216,26:54900,27:63666,28:73080,29:83720,30:95700,31:108480,32:122760,33:138666,34:155540,35:174216,36:194832,37:216600,38:240500,39:266682,40:294216,41:324240,42:356916,43:391160,44:428280,45:468450,46:510420,47:555680,48:604416,49:655200,50:709716,51:748608,52:789631,53:832902,54:878545,55:926689,56:977471,57:1031036,58:1087536,59:1147132,60:1209994,61:1276301,62:1346242,63:1420016,64:1497832,65:1579913,66:1666492,67:1757815,68:1854143,69:1955750,70:2062925,71:2175973,72:2295216,73:2420993,74:2553663,75:2693603,76:2841212,77:2996910,78:3161140,79:3334370,80:3517093,81:3709829,82:3913127,83:4127566,84:4353756,85:4592341,86:4844001,87:5109452,88:5389449,89:5684790,90:5996316,91:6324914,92:6671519,93:7037118,94:7422752,95:7829518,96:8258575,97:8711144,98:9188514,99:9692044,100:10223168,101:10783397,102:11374327,103:11997640,104:12655110,105:13348610,106:14080113,107:14851703,108:15665576,109:16524049,110:17429566,111:18384706,112:19392187,113:20454878,114:21575805,115:22758159,116:24005306,117:25320796,118:26708375,119:28171993,120:29715818,121:31344244,122:33061908,123:34873700,124:36784778,125:38800583,126:40926854,127:43169645,128:45535341,129:48030677,130:50662758,131:53439077,132:56367538,133:59456479,134:62714694,135:66151459,136:69776558,137:73600313,138:77633610,139:81887931,140:86375389,141:91108760,142:96101520,143:101367883,144:106922842,145:112782213,146:118962678,147:125481832,148:132358236,149:139611467,150:147262175,151:155332142,152:163844343,153:172823012,154:182293713,155:192283408,156:202820538,157:213935103,158:225658746,159:238024845,160:251068606,161:264827165,162:279339693,163:294647508,164:310794191,165:327825712,166:345790561,167:364739883,168:384727628,169:405810702,170:428049128,171:451506220,172:476248760,173:502347192,174:529875818,175:558913012,176:589541445,177:621848316,178:655925603,179:691870326,180:729784819,181:769777027,182:811960808,183:856456260,184:903390063,185:952895838,186:1005114529,187:1060194805,188:1118293480,189:1179575962,190:1244216724,191:1312399800,192:1384319309,193:1460180007,194:1540197871,195:1624600714,196:1713628833,197:1807535693,198:1906588648,199:2011069705,200:2121276324};
+
+  // Helper: return a bucket for ANY level (nearest defined or fallback)
+  function getExpBucketByLevel(lv){
+    lv = Number(lv)||0;
+    var table = EXP_TABLE;
+    if(table.hasOwnProperty(lv)) return table[lv];
+    var best = null, bestKey = -1;
+    for(var k in table){
+      if(!table.hasOwnProperty(k)) continue;
+      var key = Number(k);
+      if(key <= lv && key > bestKey){ bestKey = key; best = table[k]; }
+    }
+    if(best != null) return best;
+    var up = null, upKey = 1e9;
+    for(var k2 in table){
+      if(!table.hasOwnProperty(k2)) continue;
+      var key2 = Number(k2);
+      if(key2 >= lv && key2 < upKey){ upKey = key2; up = table[k2]; }
+    }
+    return up != null ? up : table[100];
+  }
+
+
+  // State
+  var activeTab = 'monsters';
+  var levelRange = [1,200];
+  var playerLevel = 10;
+  var expBucket = getExpBucketByLevel(playerLevel);
+  var expRatioMin = 0;
+
+  // Elements
+  var listMonsters = byId('listMonsters');
+  var listQuests = byId('listQuests');
+  var listItems = byId('listItems');
+  var listNPCs = byId('listNPCs');
+  var listMaps = byId('listMaps');
+  var searchInput = byId('searchInput');
+  var regionSelect = byId('regionSelect');
+  var lvMinRange = byId('lvMinRange');
+  var lvMaxRange = byId('lvMaxRange');
+  var lvMinBadge = byId('lvMinBadge');
+  var lvMaxBadge = byId('lvMaxBadge');
+  var itemTypeWrap = byId('itemTypeWrap');
+  var typeSelect = byId('typeSelect');
+  var questExpWrap = byId('questExpWrap');
+  var expRatioMinRange = byId('expRatioMinRange');
+  var expRatioBadge = byId('expRatioBadge');
+  var playerLevelWrap = byId('playerLevelWrap');
+  var playerLevelInput = byId('playerLevelInput');
+  var playerHint = byId('playerHint');
+  var expBucketWrap = byId('expBucketWrap');
+  var expBucketInput = byId('expBucketInput');
+  var bucketLabelValue = byId('bucketLabelValue');
+
+  // Build regions/types
+  function buildRegions(){
+    var regs = {'all':1};
+    for(var i=0;i<window.DATA.monsters.length;i++){ regs[window.DATA.monsters[i].region||''] = 1; }
+    for(var j=0;j<window.DATA.quests.length;j++){ regs[window.DATA.quests[j].region||''] = 1; }
+    var opts = [];
+    for(var k in regs){
+      if(!regs.hasOwnProperty(k)) continue;
+      var label = (k==='all'?'전체':k);
+      if(label){ opts.push('<option value="'+k+'">'+label+'</option>'); }
+    }
+    regionSelect.innerHTML = opts.join('');
+    regionSelect.value = 'all';
+  }
+  function buildItemTypes(){
+    var types = {'all':1};
+    for(var i=0;i<window.DATA.items.length;i++){ types[window.DATA.items[i].type||''] = 1; }
+    var opts = [];
+    for(var t in types){
+      if(!types.hasOwnProperty(t)) continue;
+      var label = (t==='all'?'전체':t);
+      if(label){ opts.push('<option value="'+t+'">'+label+'</option>'); }
+    }
+    typeSelect.innerHTML = opts.join('');
+    typeSelect.value = 'all';
+  }
+
+  function applyTabUI(){ console.log('[TAB] applyTabUI', window.activeTab);
+    var tabs = qsa('.tab');
+    for(var i=0;i<tabs.length;i++){
+      var b = tabs[i];
+      var on = (b.getAttribute('data-tab') === activeTab);
+      b.className = 'tab' + (on ? ' on' : '');
+    
+    var qOn = (activeTab==='quests'); var _fameWrap = document.getElementById('fameOnlyWrap'); if(_fameWrap){ _fameWrap.style.display = qOn ? 'block' : 'none'; }
+}
+
+    listMonsters.className = 'grid' + (activeTab==='monsters' ? '' : ' hidden');
+    listQuests.className  = 'grid' + (activeTab==='quests' ? '' : ' hidden');
+    listItems.className   = 'grid' + (activeTab==='items' ? '' : ' hidden');
+    listNPCs.className    = 'grid' + (activeTab==='npc' ? '' : ' hidden');
+    listMaps.className    = 'grid' + (activeTab==='maps' ? '' : ' hidden');
+
+    // Tab-specific controls
+    itemTypeWrap.style.display = (activeTab==='items' ? 'block' : 'none');
+    var qOn = (activeTab==='quests');
+    questExpWrap.style.display = qOn ? 'block' : 'none';
+    playerLevelWrap.style.display = qOn ? 'block' : 'none';
+    expBucketWrap.style.display = qOn ? 'block' : 'none';
+  }
+
+  function render(){
+  var fameOnly = !!(document.getElementById('fameOnlyCheckbox') && document.getElementById('fameOnlyCheckbox').checked);
+
+    applyTabUI();
+    var q = (searchInput && searchInput.value ? String(searchInput.value).trim() : '');
+    var lvMin = levelRange[0], lvMax = levelRange[1];
+    var region = regionSelect ? regionSelect.value : 'all';
+
+    var _questTypeVal = 'all';
+try {
+  var _selQT = document.getElementById('questTypeSelect');
+  if (_selQT && _selQT.value) { _questTypeVal = String(_selQT.value); }
+  else { var _savedQT = null; try{ _savedQT = localStorage.getItem('questType.selected'); }catch(_e){}; if (_savedQT) _questTypeVal = String(_savedQT); }
+} catch(_e){}
+
+// Monsters
+    if(activeTab==='monsters'){
+      var mdata = [];
+      for(var i=0;i<window.DATA.monsters.length;i++){
+        var m = window.DATA.monsters[i];
+        var hit = !q || m.name.indexOf(q)>-1 || String(m.region||'').indexOf(q)>-1;
+        var inRegion = region==='all' || String(m.region||'').indexOf(region)>-1;
+        var inLevel = (!m.level) || (m.level>=lvMin && m.level<=lvMax);
+        if(hit && inRegion && inLevel) mdata.push(m);
+      }
+      var mhtml = [];
+      for(var a=0;a<mdata.length;a++){
+        var mm = mdata[a];
+        mhtml.push(
+          '<div class="card">'+
+            '<a href="monster.html?id='+encodeURIComponent(mm.id)+'">'+
+              safeImg(mm.img, mm.name, 'thumb')+
+              '<div style="margin-top:6px; font-weight:600;">'+mm.name+'</div>'+
+              '<div style="font-size:12px; color:#6b7280;">Lv.'+(mm.level||'-')+' · '+(mm.region||'-')+'</div>'+
+            '</a>'+
+          '</a>'
+        );
+      }
+      listMonsters.innerHTML = mhtml.join('') || '<div class="card">조건에 맞는 몬스터가 없습니다.</div>';
+    }
+
+    // Quests
+    if(activeTab==='quests'){
+      var qdata = [];
+      for(var i2=0;i2<window.DATA.quests.length;i2++){
+        var qs = window.DATA.quests[i2];
+        var hit2 = !q || (qs.code && qs.code.indexOf(q)>-1) || String(qs.title||'').indexOf(q)>-1 || String(qs.region||'').indexOf(q)>-1;
+        var inRegion2 = region==='all' || String(qs.region||'').indexOf(region)>-1;
+        var inLevel2 = (!qs.minLevel) || (qs.minLevel>=lvMin && qs.minLevel<=lvMax);
+        var meetsPlayer = (playerLevel==null) || ((qs.minLevel||0) <= playerLevel);
+        var ratio = computeExpRatio(qs, expBucket);
+        var __tList = Array.isArray(qs.typeList) ? qs.typeList : String(qs.type||'').split(/[,·]/).map(function(s){return s.trim();}).filter(Boolean);
+        var inType = (_questTypeVal==='all') || (__tList.indexOf(String(_questTypeVal))>-1);
+      var fameOnly = !!(document.getElementById('fameOnlyCheckbox') && document.getElementById('fameOnlyCheckbox').checked);
+if(hit2 && inRegion2 && inLevel2 && meetsPlayer && (ratio >= expRatioMin) && inType && (!fameOnly || qs.hasFame)) qdata.push(qs);
+      }
+      var qhtml = [];
+      for(var b=0;b<qdata.length;b++){
+        var qq = qdata[b];
+        var exp = sumQuestExp(qq);
+        var ratioNow = computeExpRatio(qq, expBucket);
+        var meta = (qq.region||'-')+' · '+(qq.type||'-')+(qq.minLevel? ' · Lv.'+qq.minLevel : '');
+        var link = qq.href ? qq.href : ('quest-'+String(qq.id||'')+'.html');
+        qhtml.push(
+  '<a class="card" href="'+link+'" data-type="'+String(qq.type||'')+'" style="display:block;text-decoration:none;color:inherit;">'+
+    '<div style="display:flex; gap:12px; align-items:flex-start;">'+
+      safeImg(qq.npcImg, 'NPC', 'thumb')+
+      '<div style="min-width:0;">'+
+        '<div style="font-weight:600;">'+(qq.code? qq.code+' · ' : '')+qq.title+(qq.hasFame?' <span class=\"badge-fame\">인기도</span>':'')+'</div>'+
+        '<div class="q-badge">'+(qq.type==="대화"?"🗨️ ":(qq.type==="몬스터 사냥"?"⚔️ ":"📌 "))+(qq.type||"-")+'</div>'+
+        '<div style="font-size:12px; color:#6b7280;">'+ meta +'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="margin-top:10px;">'+
+      '<div class="bar"><div style="width:'+Math.max(0, Math.min(100, ratioNow))+'%;"></div></div>'+
+      '<div style="font-size:11px; color:#6b7280; margin-top:4px; text-align:right;">EXP '+formatNumber(exp)+' · × '+(ratioNow.toFixed? ratioNow.toFixed(2) : ratioNow)+'</div>'+
+    '</div>'+
+  '</a>'
+);
+      }
+      listQuests.innerHTML = qhtml.join('') || '<div class="card">조건에 맞는 퀘스트가 없습니다.</div>';
+    }
+
+    // Items
+    if(activeTab==='items'){
+      var type = typeSelect ? typeSelect.value : 'all';
+      var idata = [];
+      for(var i3=0;i3<window.DATA.items.length;i3++){
+        var it = window.DATA.items[i3];
+        var hit3 = !q || String(it.name||'').indexOf(q)>-1;
+        var typeOk = type==='all' || (it.type===type);
+        if(hit3 && typeOk) idata.push(it);
+      }
+      var ihtml = [];
+      for(var c=0;c<idata.length;c++){
+        var ii = idata[c];
+        ihtml.push(
+          '<div class="card">'+
+            '<a href="item.html?id='+encodeURIComponent(ii.id)+'">'+
+              safeImg(ii.img, ii.name, 'thumb')+
+              '<div style="margin-top:6px; font-weight:600;">'+ii.name+'</div>'+
+              '<div style="font-size:12px; color:#6b7280;">'+(ii.category||'-')+' · '+(ii.type||'-')+'</div>'+
+            '</a>'+
+          '</a>'
+        );
+      }
+      listItems.innerHTML = ihtml.join('') || '<div class="card">조건에 맞는 아이템이 없습니다.</div>';
+    }
+
+    // NPC
+    if(activeTab==='npc'){
+      listNPCs.innerHTML = '<div class="card">등록된 NPC가 없습니다.</div>';
+    }
+    // Maps
+    if(activeTab==='maps'){
+      listMaps.innerHTML = '<div class="card">등록된 맵이 없습니다.</div>';
+    }
+  }
+
+  try{ window.render = render; }catch(e){}
+
+
+  // Events
+  var tabs = qsa('.tab');
+  for(var i=0;i<tabs.length;i++){
+    (function(btn){
+      btn.onclick = function(){
+        activeTab = btn.getAttribute('data-tab');
+        render();
+      };
+    })(tabs[i]);
+  }
+
+  if(searchInput) searchInput.oninput = render;
+  if(regionSelect) regionSelect.oninput = render;
+
+  if(lvMinRange && lvMaxRange){
+    var updateLv = function(){
+      var min = Math.min(Number(lvMinRange.value)||1, Number(lvMaxRange.value)||1);
+      var max = Math.max(Number(lvMinRange.value)||1, Number(lvMaxRange.value)||1);
+      levelRange = [min, max];
+      lvMinBadge.textContent = String(min);
+      lvMaxBadge.textContent = String(max);
+      render();
+    };
+    lvMinRange.oninput = updateLv;
+    lvMaxRange.oninput = updateLv;
+  }
+
+  if(typeSelect) typeSelect.oninput = render;
+
+  if(expRatioMinRange){
+    var syncRatio = function(){
+      expRatioMin = Number(expRatioMinRange.value)||0;
+      expRatioBadge.textContent = expRatioMin + '%';
+      render();
+    };
+    expRatioMinRange.oninput = syncRatio;
+    expRatioMinRange.onchange = syncRatio;
+    expRatioMinRange.onblur = syncRatio;
+  }
+
+  if(playerLevelInput){
+    var onLv = function(){
+      var lv = Number(playerLevelInput.value)||null;
+      playerLevel = (lv && lv>=1 && lv<=200) ? lv : null;
+      if(playerHint) playerHint.textContent = '필터: 입력 레벨(≤) 이하만 표시 • 현재: ' + (playerLevel||'없음');
+      expBucket = getExpBucketByLevel(playerLevel);
+      if(expBucketInput) expBucketInput.value = formatNumber(expBucket);
+      if(bucketLabelValue) bucketLabelValue.textContent = formatNumber(expBucket);
+      render();
+    };
+    playerLevelInput.oninput = onLv;
+    playerLevelInput.onchange = onLv;
+    playerLevelInput.onblur = onLv;
+  }
+
+  if(expBucketInput){
+    var onBucket = function(){
+      var raw = uncomma(expBucketInput.value);
+      expBucket = Math.max(1, Number(raw)||1);
+      expBucketInput.value = formatNumber(expBucket);
+      if(bucketLabelValue) bucketLabelValue.textContent = formatNumber(expBucket);
+      render();
+    };
+    expBucketInput.oninput = onBucket;
+    expBucketInput.onchange = onBucket;
+    expBucketInput.onblur = onBucket;
+  }
+
+  var resetBtn = byId('resetBtn');
+  if(resetBtn){
+    resetBtn.onclick = function(){
+      if(searchInput) searchInput.value = '';
+      if(regionSelect) regionSelect.value = 'all';
+      if(lvMinRange) lvMinRange.value = 1;
+      if(lvMaxRange) lvMaxRange.value = 200;
+      levelRange = [1,200];
+      lvMinBadge.textContent = '1';
+      lvMaxBadge.textContent = '200';
+      if(typeSelect) typeSelect.value = 'all';
+      if(expRatioMinRange){ expRatioMinRange.value = 0; expRatioMin = 0; expRatioBadge.textContent='0%'; }
+      if(playerLevelInput){ playerLevelInput.value = 10; playerLevel = 10; if(playerHint) playerHint.textContent = '필터: 입력 레벨(≤) 이하만 표시 • 현재: 10'; }
+      expBucket = getExpBucketByLevel(playerLevel);
+      if(expBucketInput) expBucketInput.value = formatNumber(expBucket);
+      if(bucketLabelValue) bucketLabelValue.textContent = formatNumber(expBucket);
+      activeTab = 'monsters';
+      render();
+    };
+  }
+
+  // Init
+  buildRegions();
+  buildItemTypes();
+  /* RONA_FILTERS_V2 */
+  (function(){
+    var KEY = 'ronaFiltersV2';
+
+    function qs(sel){ return document.querySelector(sel); }
+    function saveState(){
+      try {
+        var st = {
+          search: (qs('#searchInput')||{}).value || '',
+          region: (qs('#regionSelect')||{}).value || 'all',
+          type:   (qs('#typeSelect')||{}).value || 'all',
+          lvMin:  (qs('#lvMinRange')||{}).value || '1',
+          lvMax:  (qs('#lvMaxRange')||{}).value || '200',
+          expMin: (qs('#expRatioMinRange')||{}).value || '0',
+          playerLevel: (qs('#playerLevelInput')||{}).value || '',
+          expBucket:   (qs('#expBucketInput')||{}).value || '',
+          activeTab: (typeof window.activeTab!=='undefined' && window.activeTab) ? window.activeTab : null
+        };
+        localStorage.setItem(KEY, JSON.stringify(st));
+      } catch(e){}
+    }
+    function loadState(){
+      try {
+        var raw = localStorage.getItem(KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch(e){ return null; }
+    }
+    function setVal(el, v){
+      if(!el || v==null) return;
+      el.value = v;
+      try{
+        el.dispatchEvent(new Event('input',{bubbles:true}));
+        el.dispatchEvent(new Event('change',{bubbles:true}));
+      }catch(e){}
+    }
+    function applyState(st){
+      if(!st) return;
+      setVal(qs('#searchInput'), st.search);
+      setVal(qs('#regionSelect'), st.region);
+      setVal(qs('#typeSelect'), st.type);
+      setVal(qs('#lvMinRange'), st.lvMin);
+      setVal(qs('#lvMaxRange'), st.lvMax);
+      setVal(qs('#expRatioMinRange'), st.expMin);
+      setVal(qs('#playerLevelInput'), st.playerLevel);
+      setVal(qs('#expBucketInput'), st.expBucket);
+      if (st.activeTab){
+        try { window.activeTab = st.activeTab; } catch(e){}
+      }
+      try { if (typeof applyTabUI==='function') applyTabUI(); } catch(e){}
+      try { if (typeof render==='function') render(); } catch(e){}
+    }
+    // Save on input changes
+    document.addEventListener('input', function(e){
+      var id = e.target && e.target.id;
+      if(!id) return;
+      if(/searchInput|regionSelect|typeSelect|lvMinRange|lvMaxRange|expRatioMinRange|playerLevelInput|expBucketInput/.test(id)){
+        saveState();
+      }
+    }, true);
+    document.addEventListener('change', function(e){
+      var id = e.target && e.target.id;
+      if(!id) return;
+      if(/searchInput|regionSelect|typeSelect|lvMinRange|lvMaxRange|expRatioMinRange|playerLevelInput|expBucketInput/.test(id)){
+        saveState();
+      }
+    }, true);
+    // Save on any link click (detail/목록 이동 전)
+    document.addEventListener('click', function(e){
+      var a = e.target && e.target.closest('a');
+      if(!a) return;
+      saveState();
+    }, true);
+
+    // Expose a manual save for tab handler to call
+    window.__saveFiltersV2 = saveState;
+
+    // After builders are done, load state and apply once
+    setTimeout(function(){
+      var st = loadState();
+      if(st){
+        applyState(st);
+      }
+    }, 0);
+  })();
+  /* END RONA_FILTERS_V2 */
+
+  // Re-apply restored filters after building options, so 'value' isn't reset by builders
+  try {
+    if (window.__restored && window.__restoredState && typeof deserialize === 'function') {
+      deserialize(window.__restoredState);
+    }
+  } catch(e){}
+  try { if (typeof render === 'function') render(); } catch(e){}
+
+  // URL tab
+  try{
+    var params = (location && location.search) ? location.search : '';
+    if(!window.__restored && params.indexOf('tab=quests')>-1) { activeTab = 'quests'; window.activeTab = 'quests'; }
+    if(!window.__restored && params.indexOf('tab=items')>-1) { activeTab = 'items'; window.activeTab = 'items'; }
+    if(!window.__restored && params.indexOf('tab=npc')>-1) { activeTab = 'npc'; window.activeTab = 'npc'; }
+    if(!window.__restored && params.indexOf('tab=maps')>-1) { activeTab = 'maps'; window.activeTab = 'maps'; }
+  }catch(e){}
+  render();
+})();
+</script>
+
+<script>
+/**
+ * Filter Auto-Save (V1)
+ * - Stores all <input>, <select>, <textarea> values and active tab state in localStorage.
+ * - Restores them on load so that after viewing a detail page and returning, the filters persist.
+ * - Key: FILTERS_AUTOSAVE_V1 (scoped by location.pathname)
+ */
+(function () {
+  const STORAGE_KEY = "FILTERS_AUTOSAVE_V1::" + location.pathname;
+
+  function getElKey(el, idx) {
+    // Unique-ish key per control
+    if (el.dataset && el.dataset.persistKey) return el.dataset.persistKey;
+    if (el.id) return el.tagName + "#" + el.id;
+    if (el.name) return el.tagName + "[name=" + el.name + "]";
+    return el.tagName + "@" + idx;
+  }
+
+  function collectState() {
+    const controls = Array.from(document.querySelectorAll("input, select, textarea"));
+    const state = { values: {}, tabs: {}, hash: location.hash || "" };
+    controls.forEach((el, idx) => {
+      const key = getElKey(el, idx);
+      if (el.type === "checkbox" || el.type === "radio") {
+        state.values[key] = el.checked;
+      } else if (el.tagName === "SELECT" && el.multiple) {
+        state.values[key] = Array.from(el.selectedOptions).map(o => o.value);
+      } else {
+        state.values[key] = el.value;
+      }
+    });
+
+    // Try to capture tab state (common patterns)
+    const activeTab = document.querySelector(
+      '[role="tab"][aria-selected="true"], .tab.is-active, .tab.active, .tabs .tab[aria-current="page"]'
+    );
+    if (activeTab) {
+      state.tabs.selector = "[data-tab-id]";
+      // mark all tabs with data-tab-id if not present
+      const tabs = document.querySelectorAll('[role="tab"], .tab');
+      tabs.forEach((t, i) => t.dataset.tabId = t.dataset.tabId || String(i));
+      state.tabs.activeId = activeTab.dataset.tabId || activeTab.id || activeTab.textContent?.trim() || "";
+    }
+    return state;
+  }
+
+  function applyState(state) {
+    if (!state || !state.values) return;
+    const controls = Array.from(document.querySelectorAll("input, select, textarea"));
+    controls.forEach((el, idx) => {
+      const key = getElKey(el, idx);
+      if (!(key in state.values)) return;
+      const val = state.values[key];
+      if (el.type === "checkbox" || el.type === "radio") {
+        el.checked = !!val;
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      } else if (el.tagName === "SELECT" && el.multiple && Array.isArray(val)) {
+        Array.from(el.options).forEach(opt => opt.selected = val.includes(opt.value));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      } else if (typeof val === "string" || typeof val === "number") {
+        // Avoid stomping on placeholder-only fields
+        if (String(el.value) !== String(val)) {
+          el.value = val;
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      }
+    });
+
+    // Restore tab if we saved one
+    if (state.tabs && state.tabs.activeId) {
+      const tabs = document.querySelectorAll('[role="tab"], .tab');
+      let target = null;
+      tabs.forEach(t => {
+        if (
+          t.dataset.tabId === state.tabs.activeId ||
+          t.id === state.tabs.activeId ||
+          t.textContent?.trim() === state.tabs.activeId
+        ) target = t;
+      });
+      if (target) {
+        target.click?.();
+      }
+    }
+
+    // Optionally restore hash (deep link to a specific list section)
+    if (state.hash && state.hash !== location.hash) {
+      try { location.hash = state.hash; } catch (e) {}
+    }
+  }
+
+  function save() {
+    try {
+      const state = collectState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      // Swallow
+    }
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      applyState(state);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Save on any interaction that changes filters
+  window.addEventListener("beforeunload", save);
+  document.addEventListener("change", save, true);
+  document.addEventListener("input", save, true);
+
+  // Also save right before following links (e.g., to detail pages)
+  document.addEventListener("click", function (e) {
+    const a = e.target.closest && e.target.closest("a[href]");
+    if (!a) return;
+    // Only save for same-origin navigations
+    const url = new URL(a.href, location.href);
+    if (url.origin === location.origin) {
+      save();
+    }
+  }, true);
+
+  // Restore ASAP after DOM ready
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", load, { once: true });
+  } else {
+    load();
+  }
+
+  // Expose small helper to clear filters quickly from console
+  window.__clearSavedFilters = function() {
+    localStorage.removeItem(STORAGE_KEY);
+  };
+})();
+</script>
+
+
+
+<script>
+(function(){
+  if (!window.addQuest){
+    window.addQuest = function(detail){
+      var q = Object.assign({}, detail||{});
+      function toDriveDirect(u){
+        if(!u) return u;
+        try{
+          var m = String(u).match(/\/file\/d\/([\w-]+)/);
+          if(m && m[1]) return 'https://drive.google.com/uc?export=view&id=' + m[1];
+          return u;
+        }catch(e){ return u; }
+      }
+      if(q.npcImg) q.npcImg = toDriveDirect(q.npcImg);
+      try{
+        if(!window.DATA) window.DATA = {monsters:[], items:[], quests:[]};
+        if(!Array.isArray(window.DATA.quests)) window.DATA.quests = [];
+        if(!q.rewards) q.rewards = [];
+        try{ q.typeList = Array.isArray(q.type) ? q.type.map(function(s){return String(s||'').trim();}).filter(Boolean) : String(q.type||'').split(/[,·]/).map(function(s){return s.trim();}).filter(Boolean); }catch(e){ q.typeList = []; }
+        window.DATA.quests.push(q);
+        if(typeof window.render === 'function'){ window.render(); }
+        var tabBtn = document.querySelector('.tab[data-tab="quests"]') || document.querySelector('.tab[data-target="#listQuests"]');
+        if(tabBtn){ tabBtn.click(); }
+      }catch(e){ console.warn('[addQuest] failed', e); }
+    };
+  }
+})();
+</script>
+<script>
+(function(){
+  if (window.__famePatchInstalled_v2) return;
+  window.__famePatchInstalled_v2 = true;
+  var oldAdd = window.addQuest;
+  if (typeof oldAdd === 'function'){
+    window.addQuest = function(detail){
+      try{
+        var q = Object.assign({}, detail||{});
+        if (Array.isArray(q.rewards)){
+          var fame = 0;
+          q.rewards.forEach(function(r){
+            if (!r) return;
+            if (typeof r.fame === 'number' && r.fame > 0){ fame = Math.max(fame, r.fame); }
+            else if (String(r.name||'').indexOf('인기도') > -1 && Number(r.qty||0) > 0){
+              fame = Math.max(fame, Number(r.qty));
+              if (typeof r.fame !== 'number') r.fame = Number(r.qty)||0;
+            }
+          });
+          q.hasFame = fame > 0;
+        }
+        return oldAdd(q);
+      }catch(e){
+        try { return oldAdd(detail); } catch(_e){ throw _e; }
+      }
+    };
+  }
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+(function(){
+  if (window.__qtEnsureInstalled) return;
+  window.__qtEnsureInstalled = true;
+
+  function ensureQuestTypeUI(){
+    var controls = document.querySelector('.controls');
+    if (!controls) return null;
+    var wrap = document.getElementById('questTypeWrap');
+    if (!wrap){
+      wrap = document.createElement('div');
+      wrap.id = 'questTypeWrap';
+      wrap.className = 'ctrl';
+      wrap.innerHTML = '<label class="label">퀘스트 타입</label><select id="questTypeSelect" class="select"></select>';
+      controls.appendChild(wrap);
+    } else if (!document.getElementById('questTypeSelect')) {
+      var sel = document.createElement('select');
+      sel.id = 'questTypeSelect';
+      sel.className = 'select';
+      wrap.appendChild(sel);
+    }
+    return document.getElementById('questTypeSelect');
+  }
+
+  
+function populateQuestTypeOptions(){
+  var sel = ensureQuestTypeUI();
+  if (!sel) return;
+  var quests = (window.DATA && Array.isArray(window.DATA.quests)) ? window.DATA.quests : [];
+  function splitTokens(raw){
+    if (Array.isArray(raw)) return raw;
+    var text = String(raw==null ? '' : raw);
+    return text.split(/[,·‧․•、，·]/).map(function(s){return s.trim();}).filter(Boolean);
+  }
+  // Build atomic token set
+  var bag = {};
+  quests.forEach(function(q){
+    if (!q) return;
+    var list = Array.isArray(q.typeList) ? q.typeList : splitTokens(q.type);
+    list.forEach(function(tok){
+      var t = String(tok||'').trim();
+      if (!t) return;
+      // exclude combined values that still contain comma-like separators
+      if (/[,·‧․•、，·]/.test(t)) return;
+      bag[t] = 1;
+    });
+  });
+  var types = Object.keys(bag).sort();
+
+  // Remember old selection (localStorage or current select value)
+  var saved = (function(){
+    try{
+      var s = localStorage.getItem('questType.selected');
+      if (s) return s;
+    }catch(e){}
+    return sel.value || 'all';
+  })();
+
+  // Rebuild options
+  sel.innerHTML = '';
+  var oAll = document.createElement('option'); oAll.value='all'; oAll.textContent='전체';
+  sel.appendChild(oAll);
+  types.forEach(function(t){
+    var o = document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o);
+  });
+
+  // Restore selection if still valid, else default to 'all'
+  var values = Array.prototype.map.call(sel.options, function(o){ return o.value; });
+  sel.value = (values.indexOf(saved) > -1) ? saved : 'all';
+}
+function showOnlyOnQuestsTab(){
+    var wrap = document.getElementById('questTypeWrap');
+    if (!wrap) return;
+    var activeBtn = document.querySelector('.tab.on');
+    var isQuests = false;
+    if (activeBtn){
+      isQuests = activeBtn.getAttribute('data-tab') === 'quests';
+    } else {
+      var list = document.getElementById('listQuests');
+      isQuests = !!(list && !list.classList.contains('hidden'));
+    }
+    wrap.style.display = isQuests ? 'block' : 'none';
+  }
+
+  function wire(){
+    var sel = document.getElementById('questTypeSelect');
+    if (sel && !sel.__qtWired){
+      sel.__qtWired = true;
+      sel.addEventListener('change', function(){
+        try{ localStorage.setItem('questType.selected', sel.value || 'all'); }catch(e){}
+        if (typeof window.render === 'function') try{ window.render(); }catch(e){}
+      });
+      sel.addEventListener('input', function(){
+        try{ localStorage.setItem('questType.selected', sel.value || 'all'); }catch(e){}
+        if (typeof window.render === 'function') try{ window.render(); }catch(e){}
+      });
+    }
+    var tabs = document.querySelectorAll('.tab');
+    [].forEach.call(tabs, function(btn){
+      if (btn.__qtTabWired) return;
+      btn.__qtTabWired = true;
+      btn.addEventListener('click', function(){ setTimeout(showOnlyOnQuestsTab, 0); });
+    });
+  }
+
+  (function(){
+    if (typeof window.render !== 'function' || window.__qtEnsureWrapped) return;
+    window.__qtEnsureWrapped = true;
+    var _r = window.render;
+    window.render = function(){
+      var out = _r.apply(this, arguments);
+      try{
+        populateQuestTypeOptions();
+        wire();
+        showOnlyOnQuestsTab();
+      }catch(e){};
+      return out;
+    };
+  })();
+
+  function init(){
+    populateQuestTypeOptions();
+    wire();
+    showOnlyOnQuestsTab();
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  if (window.__qtRenderWire) return;
+  window.__qtRenderWire = true;
+  function hook(){
+    var sel = document.getElementById('questTypeSelect');
+    if (!sel) return;
+    if (sel.__wired) return;
+    sel.__wired = true;
+    function onChange(){
+      try{ localStorage.setItem('questType.selected', sel.value||'all'); }catch(e){}
+      if (typeof window.render==='function'){ try{ window.render(); }catch(e){} }
+    }
+    sel.addEventListener('change', onChange);
+    sel.addEventListener('input', onChange);
+  }
+  if (document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', hook);
+  } else {
+    hook();
+  }
+  // Also re-hook after each render
+  (function(){
+    if (typeof window.render !== 'function' || window.__qtRenderWrap2) return;
+    window.__qtRenderWrap2 = true;
+    var _r = window.render;
+    window.render = function(){
+      var out = _r.apply(this, arguments);
+      try{ hook(); }catch(e){}
+      return out;
+    };
+  })();
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Inline multi-type quest patch (no external JS needed) -->
+<script>
+(function(){
+  if (window.__QuestTypePatch) return; window.__QuestTypePatch = true;
+
+  function splitTokens(raw){
+    if (Array.isArray(raw)) return raw;
+    var text = String(raw == null ? "" : raw);
+    return text.split(/[,\u00B7\u2027\u2024\u2022\u3001\uFF0C·]/)
+      .map(function(s){ return String(s||"").trim(); })
+      .filter(Boolean);
+  }
+
+  // 1) Patch addQuest to compute q.typeList (non-destructive)
+  (function(){
+    var originalAdd = window.addQuest;
+    if (typeof originalAdd === "function"){
+      window.addQuest = function(q){
+        try{
+          if (q) q.typeList = splitTokens(q.type);
+        }catch(e){}
+        return originalAdd.apply(this, arguments);
+      };
+    }
+  })();
+
+  // 2) Patch populateQuestTypeOptions to list only atomic tokens (no combined values)
+  (function(){
+    var originalPopulate = window.populateQuestTypeOptions;
+    window.populateQuestTypeOptions = function(){
+      var sel = (typeof window.ensureQuestTypeUI === "function")
+                  ? window.ensureQuestTypeUI()
+                  : document.getElementById("questTypeSelect");
+      if (!sel) return;
+
+      var quests = (window.DATA && Array.isArray(window.DATA.quests)) ? window.DATA.quests : [];
+      var bag = {};
+      quests.forEach(function(q){
+        if (!q) return;
+        var list = Array.isArray(q.typeList) ? q.typeList : splitTokens(q.type);
+        list.forEach(function(tok){
+          var t = String(tok||"").trim();
+          if (!t || /[,\u00B7\u2027\u2024\u2022\u3001\uFF0C·]/.test(t)) return;
+          bag[t] = 1;
+        });
+      });
+      var types = Object.keys(bag).sort();
+
+      var selEl = sel; // remember
+      var saved = (function(){
+        try{ var v = localStorage.getItem("questType.selected"); if (v) return v; }catch(e){}
+        return selEl.value || "all";
+      })();
+
+      sel.innerHTML = "";
+      var oAll = document.createElement("option"); oAll.value = "all"; oAll.textContent = "전체";
+      sel.appendChild(oAll);
+      types.forEach(function(t){
+        var o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o);
+      });
+
+      var exists = Array.prototype.some.call(sel.options, function(o){ return o.value === saved; });
+      sel.value = exists ? saved : "all";
+    };
+
+    if (typeof originalPopulate === "function"){
+      var _patched = window.populateQuestTypeOptions;
+      window.populateQuestTypeOptions = function(){
+        try{ originalPopulate.apply(this, arguments); }catch(e){}
+        try{ _patched.apply(this, arguments); }catch(e){}
+      };
+    }
+  })();
+
+  // 3) Ensure filtering uses inclusion against q.typeList (post-filter after render)
+  (function(){
+    var originalRender = window.render;
+    function getSelectedType(){
+      var sel = document.getElementById("questTypeSelect");
+      if (!sel) return "all";
+      return sel.value || "all";
+    }
+    function ensureTypeList(q){
+      if (!q) return [];
+      if (Array.isArray(q.typeList)) return q.typeList;
+      return splitTokens(q.type);
+    }
+    function postFilter(){
+      try{
+        var selected = String(getSelectedType());
+        if (selected === "all") return;
+        var list = document.getElementById("listQuests");
+        if (!list) return;
+        var links = list.querySelectorAll('.card a[href*="quest-"]');
+        var map = {};
+        var arr = (window.DATA && Array.isArray(window.DATA.quests)) ? window.DATA.quests : [];
+        for (var i=0;i<arr.length;i++){ var q = arr[i]; if (!q || q.id==null) continue; map[String(q.id)] = ensureTypeList(q); }
+        Array.prototype.forEach.call(links, function(a){
+          var m = (a.getAttribute("href")||"").match(/quest-(\d+)\.html/i);
+          var id = m ? m[1] : null;
+          var tlist = id && map[id] ? map[id] : [];
+          var show = tlist.indexOf(selected) > -1;
+          var card = a.closest ? a.closest(".card") : null;
+          if (card) card.style.display = show ? "" : "none";
+        });
+      }catch(e){}
+    }
+    if (typeof originalRender === "function"){
+      window.render = function(){
+        var out = originalRender.apply(this, arguments);
+        try{ postFilter(); }catch(e){}
+        return out;
+      };
+    } else {
+      if (document.readyState === "loading"){
+        document.addEventListener("DOMContentLoaded", postFilter);
+      } else {
+        postFilter();
+      }
+    }
+  })();
+
+  // 4) Rebuild options once after DOM ready (covers cases where template populates before quests load)
+  (function(){
+    function go(){
+      try{ if (typeof window.populateQuestTypeOptions === "function") window.populateQuestTypeOptions(); }catch(e){}
+    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go);
+    else go();
+  })();
+})();
+</script>
+
+
+
+
+
+
+<script>
+(function(){
+  function wireFame(){
+    var cb = document.getElementById('fameOnlyCheckbox');
+    if(!cb || cb.__wired) return;
+    cb.__wired = true;
+    cb.addEventListener('change', function(){
+      if (typeof window.render === 'function') {
+        try { window.render(); } catch(e) { console.error(e); }
+      }
+    });
+  }
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wireFame);
+  } else {
+    wireFame();
+  }
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script> try{ if(typeof window.render==='function') window.render(); }catch(e){ console.warn(e); } </script>
+
+<!-- === Fame & Scroll Filter Patch: v1.1 (adds dropdown filters + badges) === -->
+<style>
+  /* Badge base */
+  .badge {
+    display:inline-block;
+    padding:.125rem .375rem;
+    margin-left:.375rem;
+    border-radius:.375rem;
+    font-size:.75rem; line-height:1;
+    vertical-align:middle;
+    border:1px solid rgba(0,0,0,.15);
+    background:#f3f4f6; /* gray-100 */
+    color:#111827; /* gray-900 */
+  }
+  /* 주문서 배지 */
+  .badge-scroll{ background:#e0e7ff; border-color:#6366f1; color:#3730a3; }
+  .badge-scroll::before{ content:"📜"; margin-right:4px; }
+  /* 인기도 배지 */
+  .badge-fame{ background:#fef3c7; border-color:#f59e0b; color:#92400e; }
+  .badge-fame::before{ content:"⭐"; margin-right:4px; }
+
+  /* Minimal control styles if page has none */
+  .fsf-ctrls{ display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:flex-end; margin:.5rem 0 1rem; }
+  .fsf-ctrl{ display:flex; flex-direction:column; min-width:180px; }
+  .fsf-ctrl .label{ font-size:.85rem; font-weight:600; margin-bottom:.25rem; }
+  .fsf-ctrl .select{ padding:.4rem .5rem; border:1px solid #d1d5db; border-radius:.375rem; background:#fff; }
+</style>
+
+<script>
+(function(){
+  if (window.__fameScrollFilterPatch) return; // guard
+  window.__fameScrollFilterPatch = true;
+
+  function byId(id){ return document.getElementById(id); }
+
+  // ---------- Helpers to detect data ----------
+  function getRewards(q){
+    if (!q) return [];
+    if (Array.isArray(q.rewards)) return q.rewards;
+    // common alternative fields
+    if (Array.isArray(q.reward)) return q.reward;
+    if (q.rewards && Array.isArray(q.rewards.items)) return q.rewards.items;
+    return [];
+  }
+
+  function hasFameReward(q){
+    var arr = getRewards(q);
+    for (var i=0;i<arr.length;i++){
+      var r=arr[i]||{};
+      // patterns: numeric fame, type, or name includes '인기도'/'Fame'
+      if (typeof r.fame === 'number' && r.fame>0) return true;
+      var nm = (r.name||r.title||'')+'';
+      if (!nm) continue;
+      if (nm.indexOf('인기도')>-1 || /\\bfame\\b/i.test(nm)) return true;
+      if ((r.type||'').toString().toLowerCase()==='fame') return true;
+      // Some schemas use {kind:'fame', amount:n}
+      if ((r.kind||'').toString().toLowerCase()==='fame' && (r.amount||0)>0) return true;
+    }
+    return false;
+  }
+
+  function getScrollInfo(q){
+    var out = { has:false, names:[] };
+    var arr = getRewards(q);
+    var bag = Object.create(null);
+    for (var i=0;i<arr.length;i++){
+      var r = arr[i]||{};
+      var nm = (r.name||r.title||'')+'';
+      if (!nm) continue;
+      if (nm.indexOf('주문서')>-1 || nm.indexOf('스크롤')>-1){
+        out.has = true;
+        bag[nm] = 1;
+      }
+      // Some schemas may flag category
+      var cat = (r.category||r.type||'')+'';
+      if (/scroll|주문서/i.test(cat)){
+        out.has = true;
+        if (nm) bag[nm] = 1;
+      }
+    }
+    out.names = Object.keys(bag);
+    return out;
+  }
+
+  function buildQuestMap(){
+    var map = {};
+    var qs = (window.DATA && Array.isArray(window.DATA.quests)) ? window.DATA.quests : [];
+    for (var i=0;i<qs.length;i++){
+      var q = qs[i]; if (!q || q.id==null) continue;
+      q.hasFame = hasFameReward(q);
+      var si = getScrollInfo(q);
+      q.hasScroll = si.has;
+      q.scrollNames = si.names;
+      map[String(q.id)] = q;
+    }
+    return map;
+  }
+
+  // ---------- UI creation ----------
+  function getOrCreateControlsContainer(){
+    // prefer existing .controls
+    var el = document.querySelector('.controls');
+    if (el) return el;
+    // create minimal container just above the quest list
+    var list = byId('listQuests');
+    if (list && list.parentElement){
+      var wrap = document.createElement('div');
+      wrap.className = 'fsf-ctrls';
+      list.parentElement.insertBefore(wrap, list);
+      return wrap;
+    }
+    // fallback to body
+    var body = document.body || document.documentElement;
+    var wrap2 = document.createElement('div');
+    wrap2.className = 'fsf-ctrls';
+    body.insertBefore(wrap2, body.firstChild);
+    return wrap2;
+  }
+
+  function ensureFilterUI(){
+    // Fame control (dropdown)
+    var fameWrap = byId('fameOnlyWrap');
+    if (!fameWrap){
+      fameWrap = document.createElement('div');
+      fameWrap.id = 'fameOnlyWrap';
+      fameWrap.className = 'fsf-ctrl';
+      getOrCreateControlsContainer().appendChild(fameWrap);
+    }
+    fameWrap.innerHTML =
+      '<label class="label">인기도</label>'+
+      '<select id="fameFilterSelect" class="select">'+
+        '<option value="all">전체</option>'+
+        '<option value="has">O</option>'+
+        '<option value="none">X</option>'+
+      '</select>';
+
+    // Scroll control (dropdown)
+    if (!byId('scrollFilterWrap')){
+      var wrap = document.createElement('div');
+      wrap.id = 'scrollFilterWrap';
+      wrap.className = 'fsf-ctrl';
+      wrap.innerHTML =
+        '<label class="label">주문서</label>'+
+        '<select id="scrollFilterSelect" class="select"></select>'+
+        '<div style="font-size:12px; color:#6b7280; margin-top:6px;">카드 제목에는 "주문서" 배지와 아이콘만 표시됩니다.</div>';
+      getOrCreateControlsContainer().appendChild(wrap);
+    }
+  }
+
+  function populateScrollOptions(){
+    var sel = byId('scrollFilterSelect'); if (!sel) return;
+    var qs = (window.DATA && Array.isArray(window.DATA.quests)) ? window.DATA.quests : [];
+    var bag = Object.create(null);
+    for (var i=0;i<qs.length;i++){
+      var info = getScrollInfo(qs[i]);
+      if (!info.has) continue;
+      for (var j=0;j<info.names.length;j++) bag[info.names[j]] = 1;
+    }
+    var names = Object.keys(bag).sort();
+    var saved = sel.value || 'all';
+
+    sel.innerHTML = '';
+    function opt(v,t){ var o=document.createElement('option'); o.value=v; o.textContent=t; return o; }
+    sel.appendChild(opt('all','전체'));
+    sel.appendChild(opt('include','주문서 포함'));
+    for (var k=0;k<names.length;k++){ sel.appendChild(opt(names[k], names[k])); }
+
+    // restore
+    var exists = Array.prototype.some.call(sel.options, function(o){ return o.value===saved; });
+    sel.value = exists ? saved : 'all';
+  }
+
+  // ---------- Post-render: add badges + filtering ----------
+  function postRenderAndFilter(){
+    var fameSel = byId('fameFilterSelect');
+    var fameVal = fameSel ? String(fameSel.value||'all') : 'all';
+
+    var scrollSel = byId('scrollFilterSelect');
+    var scrollVal = scrollSel ? String(scrollSel.value||'all') : 'all';
+
+    var list = byId('listQuests');
+    var qMap = buildQuestMap();
+
+    if (!list) return;
+    var links = list.querySelectorAll('a.card[href*="quest-"], .card a[href*="quest-"]');
+    if (!links.length) links = list.querySelectorAll('.card[href*="quest-"]');
+
+    Array.prototype.forEach.call(links, function(a){
+      var href = a.getAttribute('href')||'';
+      var m = href.match(/quest-(\d+)\.html/i);
+      var id = m ? m[1] : null;
+      var q = id ? qMap[String(id)] : null;
+
+      // title element guess
+      var titleEl = a.querySelector('[data-title], .title, [style*="font-weight:600"], h3, .card-title') || a;
+
+      // Add badges if needed
+      if (q && titleEl){
+        // fame badge
+        if (q.hasFame && !titleEl.querySelector('.badge-fame')){
+          var f = document.createElement('span');
+          f.className = 'badge badge-fame';
+          f.textContent = '인기도';
+          titleEl.appendChild(document.createTextNode(' '));
+          titleEl.appendChild(f);
+        }
+        // scroll badge
+        if (q.hasScroll && !titleEl.querySelector('.badge-scroll')){
+          var s = document.createElement('span');
+          s.className = 'badge badge-scroll';
+          s.textContent = '주문서';
+          titleEl.appendChild(document.createTextNode(' '));
+          titleEl.appendChild(s);
+        }
+      }
+
+      // Filtering
+      var show = true;
+      if (q){
+        if (fameVal==='has' && !q.hasFame) show = false;
+        if (fameVal==='none' && q.hasFame) show = false;
+
+        if (scrollVal==='include' && !q.hasScroll) show = false;
+        else if (scrollVal!=='all' && scrollVal!=='include'){
+          var names = Array.isArray(q.scrollNames)? q.scrollNames : [];
+          if (names.indexOf(scrollVal)===-1) show = false;
+        }
+      }
+      var card = a.closest ? a.closest('.card') : a;
+      if (card) card.style.display = show ? '' : 'none';
+    });
+  }
+
+  // ---------- Show filters only in Quest tab if possible ----------
+  function toggleFiltersByTab(){
+    var fameWrap = byId('fameOnlyWrap');
+    var scrollWrap = byId('scrollFilterWrap');
+    // if app exposes activeTab, use it; otherwise show if quest list exists
+    var list = byId('listQuests'); var questing = (window.activeTab==='quests') || (list && !list.classList.contains('hidden'));
+    if (fameWrap) fameWrap.style.display = questing ? '' : 'none';
+    if (scrollWrap) scrollWrap.style.display = questing ? '' : 'none';
+  }
+
+  // ---------- Wire events ----------
+  function wire(){
+    var fameSel = byId('fameFilterSelect');
+    var scrollSel = byId('scrollFilterSelect');
+
+    function onChange(){
+      try{ localStorage.setItem('fameFilterSelect', fameSel ? fameSel.value : 'all'); }catch(e){}
+      try{ localStorage.setItem('scrollFilterSelect', scrollSel ? scrollSel.value : 'all'); }catch(e){}
+      postRenderAndFilter();
+    }
+
+    if (fameSel && !fameSel.__wired){ fameSel.__wired = true; fameSel.addEventListener('change', onChange); }
+    if (scrollSel && !scrollSel.__wired){ scrollSel.__wired = true; scrollSel.addEventListener('change', onChange); }
+
+    // Hook tab buttons if present
+    var tabs = document.querySelectorAll('.tab');
+    Array.prototype.forEach.call(tabs, function(btn){
+      if (btn.__fsfWired) return; btn.__fsfWired = true;
+      btn.addEventListener('click', function(){ setTimeout(function(){ toggleFiltersByTab(); postRenderAndFilter(); }, 0); });
+    });
+  }
+
+  // Hook render if app defines it
+  (function hookRender(){
+    if (typeof window.render === 'function' && !window.__fsfRenderHooked){
+      window.__fsfRenderHooked = true;
+      var _r = window.render;
+      window.render = function(){
+        var out = _r.apply(this, arguments);
+        try{
+          populateScrollOptions();
+          toggleFiltersByTab();
+          postRenderAndFilter();
+        }catch(e){}
+        return out;
+      };
+    }
+  })();
+
+  // ---------- Init ----------
+  ensureFilterUI();
+  populateScrollOptions();
+  toggleFiltersByTab();
+  wire();
+  postRenderAndFilter();
+
+  // restore selections
+  try{
+    var fameSel = byId('fameFilterSelect');
+    var scrollSel = byId('scrollFilterSelect');
+    var sv1 = localStorage.getItem('fameFilterSelect');
+    var sv2 = localStorage.getItem('scrollFilterSelect');
+    if (fameSel && sv1) fameSel.value = sv1;
+    if (scrollSel && sv2){
+      var exists = Array.prototype.some.call(scrollSel.options, function(o){ return o.value===sv2; });
+      scrollSel.value = exists ? sv2 : 'all';
+    }
+    postRenderAndFilter();
+  }catch(e){}
+})();
+</script>
+<!-- === /Fame & Scroll Filter Patch === -->
+
+<script>
+// ---- Region Filter Auto-Rebuild Patch (keeps '전체' only issue from happening) ----
+(function(){
+  // Build region options from current DATA and preserve previous selection
+  function rebuildRegions(){
+    try{
+      var sel = document.getElementById('regionSelect');
+      if (!sel) return;
+      var prev = sel.value || 'all';
+      var bag = { 'all': 1 };
+      try {
+        var D = window.DATA || {};
+        (D.monsters || []).forEach(function(m){ if (m && m.region) bag[m.region] = 1; });
+        (D.quests   || []).forEach(function(q){ if (q && q.region) bag[q.region] = 1; });
+      } catch(e){ /* noop */ }
+      var regions = Object.keys(bag).filter(Boolean).sort(function(a,b){
+        if (a==='all') return -1;
+        if (b==='all') return 1;
+        return a.localeCompare(b);
+      });
+      // Rebuild options
+      while (sel.firstChild) sel.removeChild(sel.firstChild);
+      regions.forEach(function(r){
+        var opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = (r==='all' ? '전체' : r);
+        sel.appendChild(opt);
+      });
+      // Restore selection if still valid
+      var values = Array.prototype.map.call(sel.options, function(o){ return o.value; });
+      sel.value = values.indexOf(prev) > -1 ? prev : 'all';
+      // Trigger render if available
+      if (typeof window.render === 'function') try{ window.render(); }catch(e){}
+    }catch(e){ /* ignore */ }
+  }
+  // Expose
+  window.__rebuildRegions = rebuildRegions;
+})();
+</script>
+
+<script>
+// Wrap addQuest so every time data is added, regions are recomputed
+(function(){
+  var oldAdd = window.addQuest;
+  if (typeof oldAdd === 'function' && !window.__regionWrapApplied){
+    window.__regionWrapApplied = true;
+    window.addQuest = function(detail){
+      var ret = oldAdd.apply(this, arguments);
+      try{ if (typeof window.__rebuildRegions === 'function') window.__rebuildRegions(); }catch(e){}
+      return ret;
+    };
+    // Also rebuild once after current call stack (after initial addQuest runs)
+    setTimeout(function(){ try{ window.__rebuildRegions && window.__rebuildRegions(); }catch(e){} }, 0);
+  }
+})();
+</script>
+<script>
+addQuest({
+  id: 2197,
+  code: "티앤크 1-1",
+  title: "몬스터북 영업사원 티앤크",
+  region: "리스항구",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(티앤크)
+  npcImg: "https://drive.google.com/thumbnail?id=1Im4MaruTSZvZ-NySCXNwqIzE37g8ygl0&sz=w200",
+  href: "quest-2197.html",
+  rewards: [
+    { name: "리스 항구 귀환 주문서", qty: 3, itemId: "2030001", img: "https://drive.google.com/thumbnail?id=1jtv5hpUmRL6XoxQIIPumW2jCE30W6DUT&sz=w200" },
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21010,
+  title: "영웅의 귀환",
+  code: "아란 2-1",
+  region: "리엔",
+  type: "아이템 사용",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1LvuMCkoXrOZKcn6UBOjZPUI6xYcNgS2u&sz=w400",
+  href: "quest-21010.html",
+  rewards: [{ exp: 112 }]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21011,
+  title: "사라진 무기",
+  code: "아란 2-2",
+  region: "리엔",
+  type: "대화",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1TLrva5JVw0QyLT0USv5KfNvgEfuqFpk_&sz=w400",
+  href: "quest-21011.html",
+  rewards: [
+    { exp: 245 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21012,
+  title: "사라진 능력",
+  code: "아란 2-3",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1ScDqd3wMaz2JtAucajA-gbrnwiwgKEhQ&sz=w400",
+  href: "quest-21012.html",
+  rewards: [
+    { exp: 399 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21013,
+  title: "영웅을 위한 선물",
+  code: "아란 2-4",
+  region: "리엔",
+  type: "아이템 수집",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1Iuu7iJJ6YcX321PoMlcO56JR_NmpfBN1&sz=w400",
+  href: "quest-21013.html",
+  rewards: [
+    { exp: 665 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1031,
+  title: "히나와 세라",
+  code: "히나 1-1",
+  region: "메이플로드",
+  type: "대화",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1fKDWRkJb76-Suww-WLOuncCUkeFf-ctT&sz=w400",
+  href: "quest-1031.html",
+  rewards: [
+    { exp: 35 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1018,
+  title: "토드의 사냥법",
+  code: "토드 1-1",
+  region: "메이플로드",
+  type: "아이템 수집, 몬스터 사냥",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1vE5_Xp7iez7ztAU-V6c47cn3YB4jI_D9&sz=w400",
+  href: "quest-1018.html",
+  rewards: [
+    { exp: 210, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1032,
+  code: "다나 1-1",
+  title: "다나의 동생 센",
+  region: "메이플로드",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(다나)
+  npcImg: "https://drive.google.com/thumbnail?id=12_kVZJwktz5OCdUEY05ybg784qmoeBJL&sz=w400",
+  href: "quest-1032.html",
+  rewards: [
+    { exp: 49, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1033,
+  code: "다나 1-2",
+  title: "센이 먹고 싶은 것",
+  region: "메이플로드",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(센)
+  npcImg: "https://drive.google.com/thumbnail?id=1ZwqswaL9gb-bGVYEC9ubpCo25qxCio0s&sz=w400",
+  href: "quest-1033.html",
+  rewards: [
+    { exp: 49, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1034,
+  code: "다나 1-3",
+  title: "맛있는 버섯사탕",
+  region: "메이플로드",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(다나)
+  npcImg: "https://drive.google.com/thumbnail?id=12_kVZJwktz5OCdUEY05ybg784qmoeBJL&sz=w400",
+  href: "quest-1034.html",
+  rewards: [
+    { name: "버섯 사탕", qty: 2, itemId: "2022253", img: "https://drive.google.com/thumbnail?id=1alU_N839QPNPe41DWbnbtZdfOqHqdtbW&sz=w200" },
+    { exp: 140, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+<script>
+addQuest({
+  id: 1021,
+  code: "로저 1-1",
+  title: "로저와 사과",
+  region: "메이플로드",
+  type: "아이템 사용",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(로저)
+  npcImg: "https://drive.google.com/thumbnail?id=1HMmAggKjdJqanxfjsQTEtSYShTmnzu4w&sz=w400",
+  href: "quest-1021.html",
+  rewards: [
+    { name: "빨간 포션", qty: 3, itemId: "2000000", img: "https://drive.google.com/thumbnail?id=1BI7XGQzhhfB43PPUq2p-N47BvzkemuLU&sz=w200" },
+    { name: "파란 포션", qty: 3, itemId: "2000003", img: "https://drive.google.com/thumbnail?id=1RWW2pkOJTnmhvKz-2R5bk0FKqRyvab-E&sz=w200" },
+    { exp: 70, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1036,
+  code: "로빈 1-1",
+  title: "만물박사 로빈",
+  region: "메이플로드",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(로빈)
+  npcImg: "https://drive.google.com/thumbnail?id=1o64oHjikNkBJvfirmWSgS7P9IbYL9vaW&sz=w400",
+  href: "quest-1036.html",
+  rewards: [
+    { exp: 280, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1039,
+  code: "유나 1-1",
+  title: "유나 도와주기",
+  region: "암허스트",
+  type: "몬스터 사냥",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(유나)
+  npcImg: "https://drive.google.com/thumbnail?id=1Sjbaerx_GCNUUbbOa0IDOS2LBRTanyJG&sz=w200",
+  href: "quest-1039.html",
+  rewards: [
+    { exp: 700, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1008,
+  code: "피오 1-1",
+  title: "피오의 재활용품 수거",
+  region: "암허스트",
+  type: "아이템 수집",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(피오)
+  npcImg: "https://drive.google.com/thumbnail?id=1T0Fq57yUVYIy2Hvp5_VLhjLKm4IUtGUf&sz=w400",
+  href: "quest-1008.html",
+  rewards: [
+    { name: "메소", qty: 200, img: "https://drive.google.com/thumbnail?id=1hK1QvgRe2KDxu-ddHHAf5cpkCZdlyyge&sz=w200" },
+    { exp: 700, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1020,
+  code: "피오 1-2",
+  title: "피오의 재활용품 활용",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(피오)
+  npcImg: "https://drive.google.com/thumbnail?id=1T0Fq57yUVYIy2Hvp5_VLhjLKm4IUtGUf&sz=w400",
+  href: "quest-1020.html",
+  rewards: [
+    { name: "릴렉스 체어", qty: 1, itemId: "3010000", img: "https://drive.google.com/thumbnail?id=1OIas1xUSd3xXcaJyDoTdmyqJzfDYHGIS&sz=w200" },
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1009,
+  code: "레인 1-1",
+  title: "레인의 메이플 퀴즈 1",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(레인)
+  npcImg: "https://drive.google.com/thumbnail?id=1XGLhX8dkYZiE2YBYrMqS0KC_ABH_wHCI&sz=w400",
+  href: "quest-1009.html",
+  rewards: [
+    { exp: 14, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1010,
+  code: "레인 1-2",
+  title: "레인의 메이플 퀴즈 2",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(레인)
+  npcImg: "https://drive.google.com/thumbnail?id=1XGLhX8dkYZiE2YBYrMqS0KC_ABH_wHCI&sz=w400",
+  href: "quest-1010.html",
+  rewards: [
+    { exp: 28, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1011,
+  code: "레인 1-3",
+  title: "레인의 메이플 퀴즈 3",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(레인)
+  npcImg: "https://drive.google.com/thumbnail?id=1XGLhX8dkYZiE2YBYrMqS0KC_ABH_wHCI&sz=w400",
+  href: "quest-1011.html",
+  rewards: [
+    { exp: 42, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1012,
+  code: "레인 1-4",
+  title: "레인의 메이플 퀴즈 4",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(레인)
+  npcImg: "https://drive.google.com/thumbnail?id=1XGLhX8dkYZiE2YBYrMqS0KC_ABH_wHCI&sz=w400",
+  href: "quest-1012.html",
+  rewards: [
+    { exp: 70, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1013,
+  code: "레인 1-5",
+  title: "레인의 메이플 퀴즈 5",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1XGLhX8dkYZiE2YBYrMqS0KC_ABH_wHCI&sz=w400",
+  href: "quest-1013.html",
+  rewards: [
+    { exp: 70, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1014,
+  code: "레인 1-6",
+  title: "레인의 메이플 퀴즈 6",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1XGLhX8dkYZiE2YBYrMqS0KC_ABH_wHCI&sz=w400",
+  href: "quest-1014.html",
+  rewards: [
+    { exp: 70, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 1015,
+  code: "레인 1-7",
+  title: "레인의 메이플 퀴즈 7",
+  region: "암허스트",
+  type: "대화",
+  minLevel: 1,
+  npcImg: "https://drive.google.com/thumbnail?id=1XGLhX8dkYZiE2YBYrMqS0KC_ABH_wHCI&sz=w400",
+  href: "quest-1015.html",
+  rewards: [
+    { exp: 140, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+
+<script>
+addQuest({
+  id: 21014,
+  title: "리린의 이야기",
+  code: "아란 3-1",
+  region: "리엔",
+  type: "대화",
+  minLevel: 5,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21014.html",
+  rewards: [
+    { exp: 980 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21015,
+  title: "기초 체력 단련 1",
+  code: "아란 3-2",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 5,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21015.html",
+  rewards: [
+    { exp: 2240 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21016,
+  title: "기초 체력 단련 2",
+  code: "아란 3-3",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 5,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21016.html",
+  rewards: [
+    { exp: 3150 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21017,
+  title: "기초 체력 단련 3",
+  code: "아란 3-4",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 5,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21017.html",
+  rewards: [
+    { exp: 3850 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21018,
+  title: "기초 체력 테스트",
+  code: "아란 3-5",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 5,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21018.html",
+  rewards: [
+    { exp: 8400 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2165,
+  title: "왕자님의 부탁",
+  code: "샤를 1-1",
+  region: "노틸러스",
+  type: "아이템 수집",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1KaR0ON57r6nXHwu-LkZAztr-w5JU6geF&sz=w400",
+  href: "quest-2165.html",
+  rewards: [{ exp: 2800 }]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2166,
+  title: "빛나는 돌",
+  code: "샤를 1-2",
+  region: "노틸러스",
+  type: "대화",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1xVXtu5ynjBx4_6MTonBHB5oA5_cZBA_P&sz=w400",
+  href: "quest-2166.html",
+  rewards: [{ exp: 2800 }]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2090,
+  title: "심심해요 1",
+  code: "이카루스 1-1",
+  region: "커닝시티",
+  type: "대화",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=11HAbvWVKmE75xKLb-o5bdNcqpOKJ1jd3&sz=w400",
+  href: "quest-2090.html",
+  rewards: [
+    { exp: 0 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2091,
+  title: "심심해요 2",
+  code: "이카루스 1-2",
+  region: "커닝시티",
+  type: "아이템 수집",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=11HAbvWVKmE75xKLb-o5bdNcqpOKJ1jd3&sz=w400",
+  href: "quest-2091.html",
+  rewards: [
+    { name: "빨간 포션", qty: 25 },
+    { name: "파란 포션", qty: 15 },
+    { exp: 1750 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 9250,
+  code: "페티트 1-1",
+  title: "메이플 멤버샵",
+  region: "지역 마을",
+  type: "대화",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1ItTGVcFvKSw8EaOk11K6xJ1M55LpBqrZ&sz=w200",
+  href: "quest-9250.html",
+  rewards: [
+    { name: "후르츠 캔디", qty: 6, itemId: "2001536", img: "https://drive.google.com/thumbnail?id=1hlI25HwE3a8h3-xfU6dQrbYaM26odA1N&sz=w200" },
+    { exp: 16100, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21100,
+  title: "다섯 명의 영웅",
+  code: "아란 4-1",
+  region: "리엔",
+  type: "대화",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21100.html",
+  rewards: [
+    { exp: 0 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21101,
+  title: "폴암을 사용하던 영웅",
+  code: "아란 4-2",
+  region: "리엔",
+  type: "대화",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1yzzW1t7PqniWrcypHFICZiVXs2O3e0L1&sz=w400",
+  href: "quest-21101.html",
+  rewards: [
+    { exp: 0 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21700,
+  title: "새로운 시작",
+  code: "아란 5-1",
+  region: "리엔",
+  type: "대화",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21700.html",
+  rewards: [
+    { exp: 700 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21701,
+  title: "수련만이 살 길이다! 1",
+  code: "아란 5-2",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1zELUnItOpbsWuVfXUpvkdhewjB7b8B3Q&sz=w400",
+  href: "quest-21701.html",
+  rewards: [
+    { exp: 9800 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21702,
+  title: "수련만이 살 길이다! 2",
+  code: "아란 5-3",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1zELUnItOpbsWuVfXUpvkdhewjB7b8B3Q&sz=w400",
+  href: "quest-21702.html",
+  rewards: [
+    { exp: 14000 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21703,
+  title: "수련만이 살 길이다! 3",
+  code: "아란 5-4",
+  region: "리엔",
+  type: "몬스터 사냥",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1zELUnItOpbsWuVfXUpvkdhewjB7b8B3Q&sz=w400",
+  href: "quest-21703.html",
+  rewards: [
+    { name: "리엔 특제 빨간 포션", qty: 30 },
+    { name: "리엔 특제 파란 포션", qty: 30 },
+    { exp: 19600 }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21704,
+  title: "아주 작은 한 걸음",
+  code: "아란 5-5",
+  region: "리엔",
+  type: "대화",
+  minLevel: 10,
+  npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400",
+  href: "quest-21704.html",
+  rewards: [{ exp: 3500 }]
+});
+</script>
+
+<script>
+addQuest({ id: 21705, title: "빅토리아 아일랜드로", code: "아란 6-1", region: "리엔", type: "대화", minLevel: 10, npcImg: "https://drive.google.com/thumbnail?id=1gmTm8r-9Jf9dru1TOsTAWRaCueh3tvb4&sz=w400", href: "quest-21705.html", rewards: [{ exp: 3500 }] });
+</script>
+
+<script>
+addQuest({ id: 21706, title: "정보원의 일", code: "아란 6-2", region: "리스항구", type: "퀘스트 완료", minLevel: 10, npcImg: "https://drive.google.com/thumbnail?id=1zBYuyLSpPzu5TN_VeSYOcGv8utbMOnCV&sz=w400", href: "quest-21706.html", rewards: [{ exp: 4340 }] });
+</script>
+
+<script>
+addQuest({ id: 21707, title: "테오의 정보", code: "아란 6-2-1", region: "리스항구", type: "아이템 수집", minLevel: 10, npcImg: "https://drive.google.com/thumbnail?id=1bAtC4YFFxwhrePbLVQgihPaFkJxddK_7&sz=w400", href: "quest-21707.html", rewards: [{ exp: 0 }] });
+</script>
+
+<script>
+addQuest({ id: 21708, title: "첫 번째 정보수집", code: "아란 7-1", region: "리스항구", type: "대화", minLevel: 10, npcImg: "https://drive.google.com/thumbnail?id=1zBYuyLSpPzu5TN_VeSYOcGv8utbMOnCV&sz=w400", href: "quest-21708.html", rewards: [{ exp: 1400 }] });
+</script>
+
+<script>
+addQuest({ id: 21709, title: "주황버섯의 이상 조사", code: "아란 7-2", region: "헤네시스", type: "아이템 수집", minLevel: 13, npcImg: "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w400", href: "quest-21709.html", rewards: [{ exp: 4340 }] });
+</script>
+
+<script>
+addQuest({ id: 21710, title: "몬스터 전쟁?", code: "아란 7-3", region: "헤네시스", type: "아이템 수집", minLevel: 14, npcImg: "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w400", href: "quest-21710.html", rewards: [{ exp: 5460 }] });
+</script>
+
+<script>
+addQuest({ id: 21711, title: "시니컬한 주황버섯 등장", code: "아란 7-4", region: "헤네시스", type: "몬스터 사냥 , 아이템 수집", minLevel: 15, npcImg: "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w400", href: "quest-21711.html", rewards: [{ exp: 6790 }] });
+</script>
+
+<script>
+addQuest({
+  id: 2186,
+  code: "아벨 1-1",
+  title: "안경을 찾아줘",
+  region: "노틸러스",
+  type: "아이템 수집",
+  minLevel: 15,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(아벨)
+  npcImg: "https://drive.google.com/thumbnail?id=1iDO5o8J5rhLiluwbPNQtDzB7_GDkFG9M&sz=w200",
+  href: "quest-2186.html",
+  rewards: [
+    { name: "노틸러스 귀환 주문서", qty: 15, itemId: "2030019", img: "https://drive.google.com/thumbnail?id=1hoIv1U4fShvg3XP37Qh7x30Tj0HSO3_M&sz=w200" },
+    { exp: 10500, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 21712,
+  title: "첫 번째 정보수집 완료",
+  code: "아란 7-5",
+  region: "헤네시스",
+  type: "대화",
+  minLevel: 15,
+  npcImg: "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w400",
+  href: "quest-21712.html",
+  rewards: [{ exp: 1400 }]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2009,
+  title: "피아와 파란버섯",
+  code: "피아 1-1",
+  region: "헤네시스",
+  type: "아이템 수집",
+  minLevel: 20,
+  npcImg: "https://drive.google.com/thumbnail?id=1kHcDsN0RfrbEA26T00glqyg9eXtNj-cK&sz=w400",
+  href: "quest-2009.html",
+  rewards: [
+    { name: "투구 방어력 주문서 100%", itemId: "2040000", img: "https://drive.google.com/thumbnail?id=1oT3lovqE0CHKNFZABvxSWbrz621TapjL&sz=w200" },
+    { name: "투구 방어력 주문서 60%", itemId: "2040001", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "투구 방어력 주문서 10%", itemId: "2040002", img: "https://drive.google.com/thumbnail?id=13PYrg8x28VFmCoxWQJYyqUXxozl9IDY5&sz=w200" },
+    { exp: 21000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2153,
+  title: "오래된 달팽이",
+  code: "피아 2-1",
+  region: "헤네시스",
+  type: "아이템 전달",
+  minLevel: 20,
+  npcImg: "https://drive.google.com/thumbnail?id=1kHcDsN0RfrbEA26T00glqyg9eXtNj-cK&sz=w400",
+  href: "quest-2153.html",
+  rewards: [
+    { exp: 35, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2154,
+  title: "이야기의 주인공",
+  code: "피아 2-2",
+  region: "헤네시스",
+  type: "대화",
+  minLevel: 20,
+  npcImg: "https://drive.google.com/thumbnail?id=1yNG0ueLjlGKSPiZz3iO8DAM0tlYm9-lR&sz=w400",
+  href: "quest-2154.html",
+  rewards: [
+    { exp: 35, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2155,
+  title: "달팽이 사냥",
+  code: "피아 2-3",
+  region: "엘리니아",
+  type: "아이템 수집",
+  minLevel: 20,
+  npcImg: "https://drive.google.com/thumbnail?id=1pOh-nVeOmq7DDzXWL1nYHR8tWskNGkmf&sz=w400",
+  href: "quest-2155.html",
+  rewards: [
+    { exp: 700, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2156,
+  title: "소원을 들어주는 무지개색 달팽이 껍질!?",
+  code: "피아 2-4",
+  region: "헤네시스",
+  type: "몬스터 사냥",
+  minLevel: 20,
+  npcImg: "https://drive.google.com/thumbnail?id=1kHcDsN0RfrbEA26T00glqyg9eXtNj-cK&sz=w400",
+  href: "quest-2156.html",
+  rewards: [
+    { name: "메소", qty: 30000, img: "https://drive.google.com/thumbnail?id=1hK1QvgRe2KDxu-ddHHAf5cpkCZdlyyge&sz=w200" },
+    { fame: 3, img: "https://drive.google.com/thumbnail?id=1k0lVbg3UnmONWdTV_-AK8CXUswre90n2&sz=w200" },
+    { exp: 52500, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+<script>
+addQuest({
+  id: 2106,
+  code: "뿔버섯 수배표지판 1-1",
+  title: "위험한 던전! <2-뿔버섯>",
+  region: "슬리피우드",
+  type: "몬스터 사냥",
+  minLevel: 20,
+  npcImg: "https://drive.google.com/thumbnail?id=1jx5XV_yeon3DcZAJPJOIuWmSj08as1MU&sz=w200",
+  href: "quest-2106.html",
+  rewards: [
+    { name: "하얀 포션", qty: 100, itemId: "2000002", img: "https://drive.google.com/thumbnail?id=1h56jyJm4fL-zj62GMWG7rYtybwTVBkAE&sz=w200" },
+    { exp: 31500, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2014,
+  code: "알렉스 1-1",
+  title: "알렉스의 부탁",
+  region: "커닝시티",
+  type: "대화",
+  minLevel: 20,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(알렉스)
+  npcImg: "https://drive.google.com/thumbnail?id=1vUudwg07wIXmyTrk5mzUKfpAw0hgtanw&sz=w200",
+  href: "quest-2014.html",
+  rewards: [
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2015,
+  code: "알렉스 1-2",
+  title: "장로 스탄 설득하기",
+  region: "헤네시스",
+  type: "아이템 수집",
+  minLevel: 20,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(장로 스탄)
+  npcImg: "https://drive.google.com/thumbnail?id=1IAYCzVnc1y8eM9kTdwBdKFSg_yKomiXx&sz=w200",
+  href: "quest-2015.html",
+  rewards: [
+    { exp: 11200, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2016,
+  code: "알렉스 1-3",
+  title: "어머니의 금시계",
+  region: "헤네시스",
+  type: "아이템 전달",
+  minLevel: 20,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(장로 스탄)
+  npcImg: "https://drive.google.com/thumbnail?id=1IAYCzVnc1y8eM9kTdwBdKFSg_yKomiXx&sz=w200",
+  href: "quest-2016.html",
+  rewards: [
+    { name: "금 링 귀고리 [랜덤]", qty: 1, itemId: "1032004", img: "https://drive.google.com/thumbnail?id=1ZiUUz6FDxnRhCaj5N9-bfLkM_9gyhRny&sz=w200" },
+    { name: "레드 크로스링 [랜덤]", qty: 1, itemId: "1032005", img: "https://drive.google.com/thumbnail?id=1PzK6t78syo77D4Hl-KM8y-O3VSaDS6uV&sz=w200" },
+    { name: "번개 귀고리 [랜덤]", qty: 1, itemId: "1032006", img: "https://drive.google.com/thumbnail?id=1F2YDeGJ3fTFJnmivTrF4tEGk5Pj5y0zN&sz=w200" },
+    { name: "에메랄드 귀고리 [랜덤]", qty: 1, itemId: "1032007", img: "https://drive.google.com/thumbnail?id=1VxCzNLWhe4yHDebhyIRqRMfun7-7ITHJ&sz=w200" },
+    { exp: 35000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2181,
+  code: "포쉐 1-1",
+  title: "포쉐의 편지",
+  region: "노틸러스",
+  type: "아이템 전달",
+  minLevel: 20,
+  // 목록 카드 아이콘 = 시작 NPC 이미지
+  npcImg: "https://drive.google.com/thumbnail?id=19w2tpByiroJ6O8rsW8IcZUvloBK0sJAM&sz=w200",
+  href: "quest-2181.html",
+  rewards: [
+    { exp: 7000 } // 필요하면 EXP 아이콘 썸네일 추가 가능
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2182,
+  code: "포쉐 1-2",
+  title: "떨어진 만찬 재료",
+  region: "아쿠아리움",
+  type: "아이템 수집",
+  minLevel: 20,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(켄타)
+  npcImg: "https://drive.google.com/thumbnail?id=1uy11pt7a0Ea-Z1mfOnbq_nAXGmtN4N6P&sz=w200",
+  href: "quest-2182.html",
+  rewards: [
+    { exp: 21000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2183,
+  code: "포쉐 1-3",
+  title: "웨일족을 위한 만찬",
+  region: "아쿠아리움",
+  type: "아이템 전달",
+  minLevel: 20,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(켄타)
+  npcImg: "https://drive.google.com/thumbnail?id=1uy11pt7a0Ea-Z1mfOnbq_nAXGmtN4N6P&sz=w200",
+  href: "quest-2183.html",
+  rewards: [
+    { exp: 24500, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2246,
+  title: "연구용 뿔버섯의 갓",
+  code: "기억하고 있는 자 1-1",
+  region: "슬리피우드",
+  type: "아이템 수집",
+  minLevel: 24,
+  npcImg: "https://drive.google.com/thumbnail?id=1Dyvq_sL60IoaAyefkH03p5yMgTAlGIi_&sz=w400",
+  href: "quest-2246.html",
+  rewards: [{ exp: 49000 }]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2247,
+  title: "뿔버섯의 포악성",
+  code: "기억하고 있는 자 1-2",
+  region: "슬리피우드",
+  type: "몬스터 사냥",
+  minLevel: 24,
+  npcImg: "https://drive.google.com/thumbnail?id=1Dyvq_sL60IoaAyefkH03p5yMgTAlGIi_&sz=w400",
+  href: "quest-2247.html",
+  rewards: [{ exp: 56000 }]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2248,
+  title: "뿔버섯의 신호 분석",
+  code: "기억하고 있는 자 1-3",
+  region: "슬리피우드",
+  type: "아이템 수집",
+  minLevel: 24,
+  npcImg: "https://drive.google.com/thumbnail?id=1Dyvq_sL60IoaAyefkH03p5yMgTAlGIi_&sz=w400",
+  href: "quest-2248.html",
+  rewards: [{ exp: 56000 }]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2010,
+  code: "제인 1-1",
+  title: "제인과 와일드보어",
+  region: "리스항구",
+  type: "아이템 수집",
+  minLevel: 25,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(제인)
+  npcImg: "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w200",
+  href: "quest-2010.html",
+  rewards: [
+    { name: "활 공격력 주문서 60%", qty: 1, itemId: "2044501", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "석궁 공격력 주문서 60%", qty: 1, itemId: "2044601", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "한손검 공격력 주문서 60%", qty: 1, itemId: "2043001", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "한손도끼 공격력 주문서 60%", qty: 1, itemId: "2043101", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "한손둔기 공격력 주문서 60%", qty: 1, itemId: "2043201", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "단검 공격력 주문서 60%", qty: 1, itemId: "2043301", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "두손검 공격력 주문서 60%", qty: 1, itemId: "2044001", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "두손도끼 공격력 주문서 60%", qty: 1, itemId: "2044101", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "두손둔기 공격력 주문서 60%", qty: 1, itemId: "2044201", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "창 공격력 주문서 60%", qty: 1, itemId: "2044301", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "폴암 공격력 주문서 60%", qty: 1, itemId: "2044401", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "완드 마력 주문서 60%", qty: 1, itemId: "2043701", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "스태프 마력 주문서 60%", qty: 1, itemId: "2043801", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "아대 공격력 주문서 60%", qty: 1, itemId: "2044701", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "너클 공격력 주문서 60%", qty: 1, itemId: "2044801", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { name: "건 공격력 주문서 60%", qty: 1, itemId: "2044901", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { exp: 24500, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2017,
+  code: "요정 아르웬 1-1",
+  title: "아르웬과 유리구두",
+  region: "엘리니아",
+  type: "아이템 수집",
+  minLevel: 25,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(요정 아르웬)
+  npcImg: "https://drive.google.com/thumbnail?id=1AGIyqLGX7q4mbtbdQdCt3U-Y4gNUXLBm&sz=w200",
+  href: "quest-2017.html",
+  rewards: [
+    { name: "얼음 조각", qty: 1, itemId: "4003002", img: "https://drive.google.com/thumbnail?id=11RBbM0yUkMUZh7gCJxcm1CcFpERhVnOg&sz=w200" },
+    { name: "요정의 날개", qty: 1, itemId: "4003003", img: "https://drive.google.com/thumbnail?id=12rwu4EWNnQAc-FIPh5wdUiFY8ZyiZjqS&sz=w200" },
+    { exp: 28000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2170,
+  code: "롤로네 1-1",
+  title: "김박사님에게 보낼 정보",
+  region: "노틸러스",
+  type: "아이템 전달",
+  minLevel: 30,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(롤로네)
+  npcImg: "https://drive.google.com/thumbnail?id=1fY3vkjQZkcmqIXT3pTRCKh3nrI7lJS8y&sz=w400",
+  href: "quest-2170.html",
+  rewards: [
+    { exp: 70000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2187,
+  code: "보니 1-1",
+  title: "구멍난 노틸러스호",
+  region: "노틸러스",
+  type: "아이템 수집",
+  minLevel: 30,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(보니)
+  npcImg: "https://drive.google.com/thumbnail?id=1mNOrX4rzF1lInH6mvOxvOa7dsRf7aLiH&sz=w200",
+  href: "quest-2187.html",
+  rewards: [
+    { exp: 98000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3065,
+  title: "휴즈의 취미",
+  code: "휴즈 1-1",
+  region: "아쿠아리움",
+  type: "아이템 수집 , 몬스터 사냥",
+  minLevel: 35,
+  npcImg: "https://drive.google.com/thumbnail?id=1QViQQbLwFTs6kGIC9fwPEid-DSngQrwa&sz=w400",
+  href: "quest-3065.html",
+  rewards: [
+    { exp: 63000 }, { name: "공기방울", qty: 30 }
+  ]});
+</script>
+
+<script>
+addQuest({
+  id: 3066,
+  code: "휴즈 1-2",
+  title: "휴즈의 괴상한 발명품",
+  region: "아쿠아리움",
+  type: "아이템 수집",
+  minLevel: 35,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(휴즈)
+  npcImg: "https://drive.google.com/thumbnail?id=1QViQQbLwFTs6kGIC9fwPEid-DSngQrwa&sz=w400",
+  href: "quest-3066.html",
+  rewards: [
+    { name: "산소통", qty: 1, itemId: "1102061", img: "https://drive.google.com/file/d/1dlxhai677a_Z_oe3l2hHOQywjjp6axJc/view?usp=sharing" },
+    { exp: 21000, img: "https://drive.google.com/file/d/1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z/view?usp=sharing" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3068,
+  code: "휴즈 1-3",
+  title: "휴즈의 연구재료",
+  region: "아쿠아리움",
+  type: "아이템 수집",
+  minLevel: 35,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(휴즈)
+  npcImg: "https://drive.google.com/thumbnail?id=1QViQQbLwFTs6kGIC9fwPEid-DSngQrwa&sz=w400",
+  href: "quest-3068.html",
+  rewards: [
+    { name: "마나 엘릭서", qty: 10, itemId: "2000006", img: "https://drive.google.com/thumbnail?id=11N_BzFHytqWe2T7era-Ti0UeSziFy7Af&sz=w200" },
+    { exp: 105000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3072,
+  code: "로빈슨 1-1",
+  title: "병 속에 든 편지[히든]",
+  region: "아쿠아리움",
+  type: "아이템 수집",
+  minLevel: 35,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(로빈슨)
+  npcImg: "https://drive.google.com/thumbnail?id=11nfn9wOlqP3vE0XI-dsxgoH0vSpXqXke&sz=w200",
+  href: "quest-3072.html",
+  rewards: [
+    { exp: 35000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+<script>
+addQuest({
+  id: 3073,
+  code: "로빈슨 1-2",
+  title: "로빈슨의 ID카드",
+  region: "아쿠아리움",
+  type: "아이템 전달",
+  minLevel: 35,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(로빈슨)
+  npcImg: "https://drive.google.com/thumbnail?id=11nfn9wOlqP3vE0XI-dsxgoH0vSpXqXke&sz=w200",
+  href: "quest-3073.html",
+  rewards: [
+    { exp: 70000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" },
+    { name: "인기도", qty: 2, img: "https://drive.google.com/thumbnail?id=1k0lVbg3UnmONWdTV_-AK8CXUswre90n2&sz=w200" }
+  ]
+});
+</script>
+<script>
+addQuest({
+  id: 3074,
+  code: "로빈슨 1-3",
+  title: "구조대 파견",
+  region: "지구방위본부",
+  type: "아이템 전달",
+  minLevel: 35,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(케이)
+  npcImg: "https://drive.google.com/thumbnail?id=1sb9izPd0ApQTN5G4b0pEBvJWAJeKRi-c&sz=w200",
+  href: "quest-3074.html",
+  rewards: [
+    { name: "레드 그레이트 헬멧[직업에 맞춰서]", qty: 1, itemId: "1002047", img: "https://drive.google.com/thumbnail?id=1yu8MqxPx-QWChSWycSCRCv3IjgaDa9F2&sz=w200" },
+    { name: "레드 길티언[직업에 맞춰서]", qty: 1, itemId: "1002153", img: "https://drive.google.com/thumbnail?id=1Na9GpanvDpg-ApZpu4ddw0-4GZc3eUky&sz=w200" },
+    { name: "레드 크라페[직업에 맞춰서]", qty: 1, itemId: "1002166", img: "https://drive.google.com/thumbnail?id=1Cxv11IPVNzrKR2-sWfBjVYFKNhP-vpNQ&sz=w200" },
+    { name: "레드 필퍼[직업에 맞춰서]", qty: 1, itemId: "1002181", img: "https://drive.google.com/thumbnail?id=1RnYyf9ACGCc4VYVh-f9VVwUCpzOIJPu6&sz=w200" },
+    { name: "빨간색 별 두건[직업에 맞춰서]", qty: 1, itemId: "1002020", img: "https://drive.google.com/thumbnail?id=1VC5UAQfc4eMtl2EEv_ed2AGBNKbAl7ou&sz=w200" },
+    { name: "블루 데네마린[직업에 맞춰서]", qty: 1, itemId: "1002625", img: "https://drive.google.com/thumbnail?id=1L9uH9qpzfq9BFVAtiSJkLfUkhV_TzD8q&sz=w200" },
+    { exp: 70000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2011,
+  code: "제인 2-1",
+  title: "제인의 첫번째 도전",
+  region: "리스항구",
+  type: "아이템 수집",
+  minLevel: 40,
+  npcImg: "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w200",
+  href: "quest-2011.html",
+  rewards: [
+    { name: "엘릭서", qty: 10, itemId: "2000004", img: "https://drive.google.com/thumbnail?id=1WQKAOc0vettHB8PmqO5l-En10mhyYA6m&sz=w200" },
+    { exp: 45500, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2012,
+  code: "제인 2-2",
+  title: "제인의 두번째 도전",
+  region: "리스항구",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(제인)
+  npcImg: "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w200",
+  href: "quest-2012.html",
+  rewards: [
+    { name: "파워 엘릭서", qty: 15, itemId: "2000005", img: "https://drive.google.com/thumbnail?id=1v25YsOKCwrTTb-zp5xaXErUY5BJ7iUr5&sz=w200" },
+    { exp: 47600, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2013,
+  code: "제인 2-3",
+  title: "제인의 마지막 도전",
+  region: "리스항구",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(제인)
+  npcImg: "https://drive.google.com/thumbnail?id=1MgvLqqjitSeAb_0O6YS5F1abUpAMesfN&sz=w200",
+  href: "quest-2013.html",
+  rewards: [
+    { name: "장갑 공격력 주문서 10%", qty: 1, itemId: "2040805", img: "https://drive.google.com/thumbnail?id=13PYrg8x28VFmCoxWQJYyqUXxozl9IDY5&sz=w200" },
+    { name: "장갑 공격력 주문서 60%", qty: 1, itemId: "2040804", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { exp: 49700, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+
+<script>
+addQuest({
+  id: 3067,
+  code: "나누크 1-1",
+  title: "허스키를 위한 영양간식",
+  region: "아쿠아리움",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지
+  npcImg: "https://drive.google.com/thumbnail?id=1BMW-XS716FelZagXMQVdkKAt4ByYq_Zy&sz=w400",
+  href: "quest-3067.html",
+  rewards: [
+    {
+      name: "마른 오징어",
+      qty: 50,
+      itemId: "2020007",
+      img: "https://drive.google.com/file/d/1dC1QftiwD6zRH5Ry77QpvPKzUOC0XHqh/view?usp=sharing"
+    },
+    {
+      exp: 70000,
+      img: "https://drive.google.com/file/d/1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z/view?usp=sharing"
+    }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3430,
+  code: "의무병 라이스 1-1",
+  title: "마티안의 촉수 100개 모으기",
+  region: "지구방위본부",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(의무병 라이스)
+  npcImg: "https://drive.google.com/thumbnail?id=1GNYBV-cNHgJuuJy36YssORWIZ9pdC8Sn&sz=w200",
+  href: "quest-3430.html",
+  rewards: [
+    { name: "성수", qty: 50, itemId: "2050003", img: "https://drive.google.com/thumbnail?id=1PKPJJrX0K__C1h0DItxV_4QGadiSm_4y&sz=w200" },
+    { exp: 63000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3431,
+  code: "의무병 라이스 1-2",
+  title: "마티안의 촉수 200개 모으기",
+  region: "지구방위본부",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(의무병 라이스)
+  npcImg: "https://drive.google.com/thumbnail?id=1GNYBV-cNHgJuuJy36YssORWIZ9pdC8Sn&sz=w200",
+  href: "quest-3431.html",
+  rewards: [
+    { name: "만병통치약", qty: 50, itemId: "2001556", img: "https://drive.google.com/thumbnail?id=16VvOnYEeIOm5gk0p7yyXgqaz4r7L1H10&sz=w200" },
+    { exp: 77000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3432,
+  code: "의무병 라이스 1-3",
+  title: "마티안의 촉수 300개 모으기",
+  region: "지구방위본부",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(의무병 라이스)
+  npcImg: "https://drive.google.com/thumbnail?id=1GNYBV-cNHgJuuJy36YssORWIZ9pdC8Sn&sz=w200",
+  href: "quest-3432.html",
+  rewards: [
+    { name: "엘릭서", qty: 50, itemId: "2000004", img: "https://drive.google.com/thumbnail?id=1WQKAOc0vettHB8PmqO5l-En10mhyYA6m&sz=w200" },
+    { exp: 91000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3433,
+  code: "의무병 라이스 1-4",
+  title: "마티안의 촉수 400개 모으기",
+  region: "지구방위본부",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(의무병 라이스)
+  npcImg: "https://drive.google.com/thumbnail?id=1GNYBV-cNHgJuuJy36YssORWIZ9pdC8Sn&sz=w200",
+  href: "quest-3433.html",
+  rewards: [
+    { name: "파워 엘릭서", qty: 30, itemId: "2000005", img: "https://drive.google.com/thumbnail?id=1v25YsOKCwrTTb-zp5xaXErUY5BJ7iUr5&sz=w200" },
+    { exp: 105000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3434,
+  code: "의무병 라이스 1-5",
+  title: "마티안의 촉수 500개 모으기",
+  region: "지구방위본부",
+  type: "아이템 수집",
+  minLevel: 40,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(의무병 라이스)
+  npcImg: "https://drive.google.com/thumbnail?id=1GNYBV-cNHgJuuJy36YssORWIZ9pdC8Sn&sz=w200",
+  href: "quest-3434.html",
+  rewards: [
+    { name: "파란색 캔버스화 [직업에 맞춰서]", qty: 1, itemId: "1072018", img: "https://drive.google.com/thumbnail?id=1sZj87mk-U2knc3Uk-yotDkY5jNiXHEnE&sz=w200" },
+    { name: "자 진월장화 [직업에 맞춰서]", qty: 1, itemId: "1072126", img: "https://drive.google.com/thumbnail?id=1Wv_qcIIc3FsOM2zP6Ck-5fRS7Ri5slfx&sz=w200" },
+    { name: "골드 문슈즈 [직업에 맞춰서]", qty: 1, itemId: "1072116", img: "https://drive.google.com/thumbnail?id=1WRGx28Saz6MhIFb4qPpaTXF8SQP2skbs&sz=w200" },
+    { name: "옐로우 피에르슈즈 [직업에 맞춰서]", qty: 1, itemId: "1072119", img: "https://drive.google.com/thumbnail?id=1kyf2O24mzOHrVR1MnsEp4zEsuJ7V-FPS&sz=w200" },
+    { name: "블루 하프슈즈 [직업에 맞춰서]", qty: 1, itemId: "1072110", img: "https://drive.google.com/thumbnail?id=1fMVOt42HO2B1AldLhIpFeDXgYCmFOBR7&sz=w200" },
+    { name: "브라운 레더크라그 [직업에 맞춰서]", qty: 1, itemId: "1072300", img: "https://drive.google.com/thumbnail?id=1MljBPnkuJtt3z9YE4UE3BUwJZHTxfExN&sz=w200" },
+    { exp: 126000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+
+<script>
+addQuest({
+  id: 2112,
+  code: "뿔버섯 수배표지판 1-2",
+  title: "위험한 던전!! <2-뿔버섯>",
+  region: "슬리피우드",
+  type: "몬스터 사냥",
+  minLevel: 45,
+  npcImg: "https://drive.google.com/thumbnail?id=1jx5XV_yeon3DcZAJPJOIuWmSj08as1MU&sz=w200",
+  href: "quest-2112.html",
+  rewards: [
+    { exp: 31500, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+<script>
+addQuest({
+  id: 2222,
+  code: "요정 아르웬 2-1",
+  title: "악령의 숲",
+  region: "엘리니아",
+  type: "대화",
+  minLevel: 50,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(요정 아르웬)
+  npcImg: "https://drive.google.com/thumbnail?id=1AGIyqLGX7q4mbtbdQdCt3U-Y4gNUXLBm&sz=w200",
+  href: "quest-2222.html",
+  rewards: [
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2223,
+  code: "요정 아르웬 2-2",
+  title: "그가 부르는 이름",
+  region: "엘리니아",
+  type: "아이템 수집",
+  minLevel: 50,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(펜시)
+  npcImg: "https://drive.google.com/thumbnail?id=1RGZJ5yNVj5lVXhRxymsVeJu6Xw7_Ay9s&sz=w200",
+  href: "quest-2223.html",
+  rewards: [
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2224,
+  code: "요정 아르웬 2-3",
+  title: "원한, 원망, 원혼",
+  region: "엘리니아",
+  type: "대화",
+  minLevel: 50,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(펜시)
+  npcImg: "https://drive.google.com/thumbnail?id=1RGZJ5yNVj5lVXhRxymsVeJu6Xw7_Ay9s&sz=w200",
+  href: "quest-2224.html",
+  rewards: [
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2225,
+  code: "요정 아르웬 2-4",
+  title: "원인과 결과",
+  region: "엘리니아",
+  type: "대화",
+  minLevel: 50,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(리프)
+  npcImg: "https://drive.google.com/thumbnail?id=1X0DO3pj6oijTUKiDMcd6esUkgyAVP1KG&sz=w200",
+  href: "quest-2225.html",
+  rewards: [
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2226,
+  code: "요정 아르웬 2-5",
+  title: "아르웬의 사과",
+  region: "엘리니아",
+  type: "아이템 전달",
+  minLevel: 50,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(요정 아르웬)
+  npcImg: "https://drive.google.com/thumbnail?id=1AGIyqLGX7q4mbtbdQdCt3U-Y4gNUXLBm&sz=w200",
+  href: "quest-2226.html",
+  rewards: [
+    { exp: 0, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 2227,
+  code: "요정 아르웬 2-6",
+  title: "파우스트 퇴치",
+  region: "엘리니아",
+  type: "몬스터 사냥",
+  minLevel: 50,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(하인즈)
+  npcImg: "https://drive.google.com/thumbnail?id=1qHC8Y547IJ6yQ5N6gWssMNaaDuxep_a5&sz=w200",
+  href: "quest-2227.html",
+  rewards: [
+    { exp: 789600, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+
+<script>
+addQuest({
+  id: 3703,
+  code: "팜 1-1",
+  title: "팜의 부탁",
+  region: "리프레",
+  type: "아이템 수집",
+  minLevel: 78,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(팜)
+  npcImg: "https://drive.google.com/thumbnail?id=1BftM7pIdpgFNuWkO5aYlcsmzRaSKRECG&sz=w200",
+  href: "quest-3703.html",
+  rewards: [
+    { name: "신발 점프력 주문서 10%", qty: 1, itemId: "2040705", img: "https://drive.google.com/thumbnail?id=13PYrg8x28VFmCoxWQJYyqUXxozl9IDY5&sz=w200" },
+    { name: "신발 점프력 주문서 60%", qty: 1, itemId: "2040704", img: "https://drive.google.com/thumbnail?id=1KhOKODVfNThiVBdxUqkoPM6xaY-vvEHi&sz=w200" },
+    { exp: 308000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3704,
+  code: "팜 2-1",
+  title: "치료약의 재료",
+  region: "리프레",
+  type: "아이템 수집",
+  minLevel: 85,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(팜)
+  npcImg: "https://drive.google.com/thumbnail?id=1BftM7pIdpgFNuWkO5aYlcsmzRaSKRECG&sz=w200",
+  href: "quest-3704.html",
+  rewards: [
+    { name: "만병통치약", qty: 30, itemId: "2001556", img: "https://drive.google.com/thumbnail?id=1N4uTGzI49QUOJC8_QVDHzxjIaeQImF71&sz=w200" },
+    { exp: 406000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3084,
+  code: "나누크 2-1",
+  title: "나누크의 요리재료",
+  region: "아쿠아리움",
+  type: "아이템 수집",
+  minLevel: 95,
+  npcImg: "https://drive.google.com/thumbnail?id=1BMW-XS716FelZagXMQVdkKAt4ByYq_Zy&sz=w400",
+  href: "quest-3084.html",
+  rewards: [
+    { exp: 560000, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+
+<script>
+addQuest({
+  id: 3085,
+  code: "나누크 2-2",
+  title: "뮤즈의 요리",
+  region: "아쿠아리움",
+  type: "아이템 전달",
+  minLevel: 95,
+  // 목록 카드 아이콘 = 시작 NPC 이미지(뮤즈)
+  npcImg: "https://drive.google.com/thumbnail?id=1VIaoLiBKVHbD2N4iqVJB1dy3GjW6_U9k&sz=w400",
+  href: "quest-3085.html",
+  rewards: [
+    { name: "장갑 공격력 주문서 10%", itemId: "2040805", img: "https://drive.google.com/thumbnail?id=13PYrg8x28VFmCoxWQJYyqUXxozl9IDY5&sz=w200" },
+    { exp: 1400, img: "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200" }
+  ]
+});
+</script>
+</body>
+</html>

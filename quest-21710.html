@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>퀘스트 상세 • 로나월드</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  .card { border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; padding:1rem; }
+  .muted { color:#6b7280; }
+  .row { display:flex; align-items:center; gap:.75rem; }
+  .grid { display:grid; gap:1rem; }
+  img { max-width:100%; height:auto; }
+  .thumb { width:56px; height:56px; object-fit:contain; background:#fff; border:1px solid #e5e7eb; border-radius:0.5rem; padding:4px; }
+  .ibox { display:flex; align-items:center; gap:.75rem; padding:.5rem; border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; }
+  .ibox:hover { background:#f9fafb; }
+
+  /* Speech bubbles */
+  .bubble{position:relative;max-width:80%;padding:.625rem .75rem;border-radius:1rem;line-height:1.45;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bubble-left{background:#f8fafc;border:1px solid #e5e7eb;color:#111827}
+  .bubble-right{background:#3b82f6;border:1px solid #1d4ed8;color:#fff}
+  .bubble-left:after{content:"";position:absolute;left:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent #e5e7eb transparent transparent}
+  .bubble-left:before{content:"";position:absolute;left:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent #f8fafc transparent transparent}
+  .bubble-right:after{content:"";position:absolute;right:-6px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #1d4ed8}
+  .bubble-right:before{content:"";position:absolute;right:-5px;top:12px;border-width:6px;border-style:solid;border-color:transparent transparent transparent #3b82f6}
+  .bubble-name{font-weight:600;font-size:.875rem;margin-bottom:.125rem}
+  .avatar{width:40px;height:40px;border-radius:9999px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+  .bubble-right .bubble-name{color:#eaf2ff}
+  .bubble-right a{color:#fff;text-decoration:underline}
+  .bubble-right b,.bubble-right strong{color:#fff}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+<a class="inline-flex items-center gap-1 text-sm mb-4 text-blue-600 hover:underline" href="index.html?tab=quests" id="back-to-quests">← 퀘스트 목록으로</a>
+<article id="detail"></article>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const IMG = {
+    bruce: "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w256",
+    iyan: "https://drive.google.com/thumbnail?id=1Qh6RmsnBctbFC6zhtyAVOFCUVMPYiJtw&sz=w256",
+    henesys: "https://drive.google.com/thumbnail?id=1-mGJYGjekTQwGtgcRY5ip2iL1D7uXp7E&sz=1700x668",
+    perion: "https://drive.google.com/thumbnail?id=1nbA7-aR6XfVWbgFVh6jJo7czfta-LmDt&sz=1700x668",
+    toy: "https://drive.google.com/thumbnail?id=1BwyPTo3zGoZK_9U3m0XE7WZpNe2KQyCJ&sz=w256",
+  };
+
+  const q = {
+  "id": "21710",
+  "code": "아란 7-3",
+  "title": "몬스터 전쟁?",
+  "type": "아이템 수집",
+  "region": "헤네시스",
+  "minLevel": 14,
+  "start": {
+    "npc": {
+      "name": "브루스",
+      "img": "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w400",
+      "id": "1012111"
+    },
+    "place": {
+      "name": "헤네시스",
+      "img": "https://drive.google.com/thumbnail?id=1O-EX1B1rBC4Go4Ejn7sL6L48ah7G0LLS&sz=w800",
+      "code": "100000000"
+    }
+  },
+  "finish": {
+    "npc": {
+      "name": "브루스",
+      "img": "https://drive.google.com/thumbnail?id=192LWAkab2bHFBmoP1O_Dj0trz0x2-MKj&sz=w400",
+      "id": "1012111"
+    },
+    "place": {
+      "name": "헤네시스",
+      "img": "https://drive.google.com/thumbnail?id=1O-EX1B1rBC4Go4Ejn7sL6L48ah7G0LLS&sz=w800",
+      "code": "100000000"
+    }
+  },
+  "dialogues": [
+    {
+      "who": "브루스",
+      "text": "곰곰이 생각해 봤지만 주황버섯이 변한 원인을 모르겠군. 일단은 몬스터 간의 전쟁 때문이 아닐까 하고 있다네... 과거에도 종종 주황버섯과 돼지 사이에 영역다툼이 전쟁으로 번직 적이 있었거든."
+    },
+    {
+      "who": "브루스",
+      "text": "하지만 주황버섯과 돼지 사이에 평화조약이 체결된 지 오래라 기능성은 적어. 정확한 사정을 파악하려면 돼지 또한 조사를 해봐야 할 것 같네. 이번에도 자네가 수고해 줘야 할 것 같군."
+    },
+    {
+      "who": "브루스",
+      "text": "돼지를 퇴치하고 돼지의 꼬리를 50개 구해다 주게나. 평소 돼지의 꼬리는 돌돌 말려 있지만, 전쟁 중인 돼지의 꼬리는 일자가 되거든. 그러나 돼지의 꼬리를 조사하면 돼지가 전투 준비 중인지 아닌지 알 게 될 거야."
+    }
+  ],
+  "completionDialogues": [
+    {
+      "who": "브루스",
+      "text": "돼지의 꼬리 50개는 구해 온 건가? 그럼 바로 확인 해볼까? 자, 어서 건네주게."
+    },
+    {
+      "who": "브루스",
+      "text": "돼지의 꼬리가 여전히 돌돌 말려 있는 걸 보면 돼지는 전쟁 준비 중이 아니라는 건데... 그럼 주황버섯은 왜 전투 태세를 갖춘 거지? 이것 참. 또다시 제자리군..."
+    },
+    {
+      "who": "브루스",
+      "text": "일단 계속 원인을 알아보도록 하겠네. 시간이 걸릴 테니 계속해서 주변에서 사냥을 하다 오게나."
+    }
+  ],
+  "descHtml": "브루스는 주황버섯의 이상 원인이 주황버섯과 돼지사이에 전쟁일지도 모른다며, 정확히 파악하기 위해 돼지도 조사해 봐야겠다고 말했다. 그러면서 돼지의 꼬리 50개를 구해 달라는데...",
+  "reqs": [
+    {
+      "type": "item",
+      "name": "돼지의 꼬리",
+      "img": "https://drive.google.com/thumbnail?id=12Tx7YE1ti1dLWQ1wPtilqrjhb85sm0Qn&sz=w400",
+      "qty": 50,
+      "itemId": "4032340"
+    }
+  ],
+  "tips": [
+    "돼지 사냥",
+    {
+      "name": "돼지",
+      "level": 7,
+      "img": "https://drive.google.com/thumbnail?id=1WzfVlwNJ_w5sSPzCJ0FhUau5SV3vHfZG&sz=w400",
+      "id": "100007"
+    }
+  ],
+  "rewards": [
+    {
+      "exp": 5460,
+      "img": "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w400"
+    }
+  ],
+  "prereqs": [
+    {
+      "id": "21709",
+      "title": "주황버섯의 이상 조사"
+    }
+  ],
+  "nexts": [ { "id": "21711", "title": "시니컬한 주황버섯 등장" } ]
+};
+
+  const img = (src, alt='', cls='') => `<img src="${src||''}" alt="${alt||''}" ${cls?`class="${cls}"`:''} onerror="this.style.display='none'">`;
+
+  const row = (labelLeft, imgLeft, nameLeft, labelRight, imgRight, nameRight, linkLeft='', linkRight='') => {
+    const cell = (label, imgSrc, name, link) => {
+      const inner = `${img(imgSrc, name)}<div class="text-sm"><div class="muted">${label}</div><div class="font-medium">${name||'-'}</div></div>`;
+      return link ? `<a class="row" href="${link}">${inner}</a>` : `<div class="row">${inner}</div>`;
+    };
+    return `<div class="row">${cell(labelLeft, imgLeft, nameLeft, linkLeft)}<div class="muted" style="padding:0 .5rem">|</div>${cell(labelRight, imgRight, nameRight, linkRight)}</div>`;
+  };
+
+  const rewardBox = r => {
+    if (typeof r.exp === 'number') {
+      const pic = img(r.img, 'EXP', 'thumb');
+      const txt = `<div class="text-sm font-medium">경험치 ${r.exp.toLocaleString()} exp</div>`;
+      return `<div class="ibox">${pic}${txt}</div>`;
+    }
+    const title = `${r.name||''}${(r.qty && r.qty>0) ? ' ×'+r.qty : ''}`;
+    const pic = img(r.img, r.name, 'thumb');
+    const inner = `<div class="text-sm font-medium">${title}</div>`;
+    return r.itemId ? `<a class="ibox" href="https://linsuol13-bit.github.io/LO/item-${r.itemId}.html">${pic}${inner}</a>` : `<div class="ibox">${pic}${inner}</div>`;
+  };
+
+  
+const reqItemBox = r => {
+  const qtyPart = (r.qty && r.qty>0) ? (' ×'+r.qty) : (r.qty===0 ? ' (전달)' : (r.qty<0 ? ' (사용)' : ''));
+  const title = `${r.name}${qtyPart}`;
+  const pic = img(r.img, r.name, 'thumb');
+  const inner = `<div class="text-sm font-medium">${title}</div>`;
+  let href = '';
+  if (r.itemId) {
+    const t = (r.type||'');
+    if (t.includes('몬스터')) href = `https://linsuol13-bit.github.io/LO/monster-${r.itemId}.html`;
+    else if (t.includes('아이템')) href = `https://linsuol13-bit.github.io/LO/item-${r.itemId}.html`;
+  }
+  return href ? `<a class="ibox" href="${href}">${pic}${inner}</a>` : `<div class="ibox">${pic}${inner}</div>`;
+};
+        
+
+  const isPlayer = (w) => /^(나|플레이어|주인공|Player|영웅)$/i.test((w||'').toString().trim());
+  const avatarFor = (who) => {
+    if (who === (q.start.npc && q.start.npc.name)) return q.start.npc.img;
+    if (who === (q.finish.npc && q.finish.npc.name)) return q.finish.npc.img;
+    return '';
+  };
+  const dialogueRow = (d) => {
+    d = d || { };
+    const left = !isPlayer(d.who);
+    const av = left ? avatarFor(d.who) : '';
+    const avatar = (left && av) ? `<img class="avatar" src="${av}" alt="${d.who||''}" onerror="this.style.display='none'">` : '';
+    return `<div class="flex items-start ${left ? 'justify-start' : 'justify-end'} gap-2">${left ? avatar : ''}<div class="bubble ${left ? 'bubble-left' : 'bubble-right'}"><div class="bubble-name">${d.who||''}</div><div class="text-sm leading-snug">${d.text||''}</div></div></div>`;
+  };
+
+  const tipsSection = (tips=[]) => {
+    const list = Array.isArray(tips) ? tips : [];
+    if (!list.length) return '';
+    const boxes = list.map(t => {
+      if (typeof t === 'string') return `<div class="ibox"><div class="text-sm font-medium">${t}</div></div>`;
+      const pic = t.img ? img(t.img, t.name || 'TIP', 'thumb') : '';
+      const meta = `${t.subtitle || (t.level != null ? 'Lv.'+t.level : '')}`;
+      const text = `<div>${t.name ? `<div class="text-sm font-medium">${t.name}</div>` : ''}${meta ? `<div class="muted" style="font-size:12px">${meta}</div>` : ''}</div>`;
+      const href = t.id ? `https://linsuol13-bit.github.io/LO/monster-${t.id}.html` : (t.link||t.url||'');
+      return href ? `<a class="ibox" href="${href}">${pic}${text}</a>` : `<div class="ibox">${pic}${text}</div>`;
+    }).join('');
+    return `<section class="mb-10"><h2 class="text-sm font-semibold mb-2">TIP</h2><div class="grid">${boxes}</div></section>`;
+  };
+
+  const prereqSection = (list=[]) => {
+    if (!Array.isArray(list) || !list.length) return '';
+    const boxes = list.map(p => {
+      const href = `https://linsuol13-bit.github.io/LO/quest-${p.id}.html`;
+      return `<a class="ibox" href="${href}"><div class="text-sm"><div class="muted">선행 퀘스트</div><div class="font-medium">[${p.id}] ${p.title}</div></div></a>`;
+    }).join('');
+    return `<section class="mb-6"><h2 class="text-sm font-semibold mb-2">선행 퀘스트</h2><div class="grid">${boxes}</div></section>`;
+  };
+
+  const $detail = document.getElementById('detail');
+  $detail.innerHTML = `
+    <header class="mb-4">
+      <h1 class="text-2xl font-bold">${q.code} · ${q.title}</h1>
+      <p class="text-sm muted">${q.region} · ${q.type} · Lv.${q.minLevel}</p>
+    </header>
+
+    ${prereqSection(q.prereqs)}
+
+    <section class="grid" style="grid-template-columns:1fr 1fr;">
+      <div class="card">
+        <h2 class="text-sm font-semibold mb-3">시작</h2>
+        ${row('시작 NPC', q.start.npc.img, q.start.npc.name, '시작 장소', q.start.place.img, q.start.place.name, (q.start.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.start.npc.id}.html`:''), (q.start.place.code?`https://linsuol13-bit.github.io/LO/map-${q.start.place.code}.html`:''))}
+      </div>
+      <div class="card">
+        <h2 class="text-sm font-semibold mb-3">완료</h2>
+        ${row('완료 NPC', q.finish.npc.img, q.finish.npc.name, '완료 장소', q.finish.place.img, q.finish.place.name, (q.finish.npc.id?`https://linsuol13-bit.github.io/LO/npc-${q.finish.npc.id}.html`:''), (q.finish.place.code?`https://linsuol13-bit.github.io/LO/map-${q.finish.place.code}.html`:''))}
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold mb-2">대사</h2>
+      <div class="card" style="display:grid; gap:.5rem">
+        ${(q.dialogues || []).map(dialogueRow).join('')}
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <h2 class="text-sm font-semibold mb-2">퀘스트 조건</h2>
+      <div class="card text-sm leading-relaxed text-gray-800 mb-3">${q.descHtml}</div>
+      <div class="grid">
+        ${(q.reqs || []).map(reqItemBox).join('')}
+      </div>
+
+      ${tipsSection(q.tips)}
+
+      ${(q.completionDialogues && q.completionDialogues.length) ? `
+      <div class="mt-4 pt-3 border-t">
+        <h2 class="text-sm font-semibold mb-2">완료 대사</h2>
+        <div class="card">${(q.completionDialogues || []).map(dialogueRow).join("")}</div>
+      </div>` : ''}
+    </section>
+
+    ${(q.rewards && q.rewards.length) ? `
+    <section class="mb-10">
+      <h2 class="text-sm font-semibold mb-2">완료 보상</h2>
+      <div class="grid">
+        ${q.rewards.map(rewardBox).join('')}
+      </div>
+    </section>` : ''}
+  `;
+  // ---- Append Next Quest section via DOM ----
+  try {
+    if (Array.isArray(q.nexts) && q.nexts.length) {
+      const nextSec = document.createElement('section');
+      nextSec.className = 'mb-16';
+      nextSec.innerHTML = `<h2 class="text-sm font-semibold mb-2">다음 퀘스트</h2>`;
+      const grid = document.createElement('div');
+      grid.className = 'grid';
+      q.nexts.forEach(n => {
+        const a = document.createElement('a');
+        a.className = 'ibox';
+        a.href = `quest-${n.id}.html`;
+        a.innerHTML = `<div class="text-sm">
+          <div class="muted">다음 퀘스트</div>
+          <div class="font-medium">[${n.id}] ${n.title || ''}</div>
+        </div>`;
+        grid.appendChild(a);
+      });
+      nextSec.appendChild(grid);
+      const detail = document.getElementById('detail');
+      // Insert right after "완료 보상" section if present; else append at end
+      const h2s = detail.querySelectorAll('h2');
+      let placed = false;
+      h2s.forEach(h => {
+        if (h.textContent.trim() === '완료 보상') {
+          const sec = h.closest('section');
+          if (sec && sec.parentNode) {
+            sec.parentNode.insertBefore(nextSec, sec.nextSibling);
+            placed = true;
+          }
+        }
+      });
+      if (!placed) detail.appendChild(nextSec);
+    }
+  } catch (e) { console.warn('Next quest append failed:', e); }
+
+})();
+</script>
+
+<script>
+(function(){
+  var a = document.getElementById('back-to-quests');
+  if(!a) return;
+  a.addEventListener('click', function(e){
+    e.preventDefault();
+    try{
+      var href = this.getAttribute('href') || 'index.html?tab=quests';
+      var u = href + (href.indexOf('?')>-1 ? '&' : '?') + 'nocache=' + Date.now();
+      location.replace(u);
+    }catch(err){
+      location.href = 'index.html?tab=quests';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

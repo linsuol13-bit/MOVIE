@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>퀘스트 상세 • 안경을 찾아줘</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  .card { border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; padding:1rem; }
+  .muted { color:#6b7280; }
+  .row { display:flex; align-items:center; gap:.75rem; }
+  .grid { display:grid; gap:1rem; }
+  img { max-width:100%; height:auto; }
+  .thumb { width:56px; height:56px; object-fit:contain; background:#fff; border:1px solid #e5e7eb; border-radius:0.5rem; padding:4px; }
+  .ibox { display:flex; align-items:center; gap:.75rem; padding:.5rem; border:1px solid #e5e7eb; border-radius:0.75rem; background:#fff; transition: background .15s ease; }
+  .ibox:hover { background:#f9fafb; }
+  .bubble{position:relative;max-width:80%;padding:.625rem .75rem;border-radius:1rem;line-height:1.45;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .bubble-left{background:#f8fafc;border:1px solid #e5e7eb;color:#111827}
+  .bubble-right{background:#3b82f6;border:1px solid #1d4ed8;color:#fff}
+  .bubble-name{font-weight:600;font-size:.875rem;margin-bottom:.125rem}
+  .avatar{width:40px;height:40px;border-radius:9999px;border:1px solid #e5e7eb;object-fit:cover;background:#fff}
+  #errorBox{display:none;} pre{white-space:pre-wrap;word-break:break-word}
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+<div class="mx-auto max-w-5xl p-4 sm:p-6 lg:p-8">
+<a class="inline-flex items-center gap-1 text-sm mb-4 text-blue-600 hover:underline" href="index.html?tab=quests" id="back-to-quests">← 퀘스트 목록으로</a>
+<article id="detail">
+<h1 class='text-2xl font-bold'>아벨 1-1 · 안경을 찾아줘</h1>
+<p class='text-sm text-gray-500'>노틸러스 · 아이템 수집 · Lv.15</p>
+<div class='mt-4 p-4 rounded-lg border bg-white'>
+  <div class='text-sm font-semibold mb-2'>퀘스트 조건</div>
+  <p class='text-sm text-gray-800'>안경을 잃어버린 아벨은 앞에 전혀 보이지 않는다고한다. 낮잠 자는 사이에 펠리컨들이 집어가버렸다니… 아벨이 앞을 볼 수 있도록 갈매기들이 모여있는 노틸러스호 선착장 동쪽 끝에 있는 감시탑의 풀 숲을 뒤져서 안경을 찾아보자. 아벨의 안경은 검은 뿔테라는 것도 잊지 말고!</p>
+</div>
+</article>
+<div id="errorBox" class="mt-4 p-3 border rounded-lg bg-red-50 text-red-700 text-sm"></div>
+</div>
+<script>
+// simple util
+function safeImg(src, alt, cls) {
+  if(!src) return '';
+  return '<img src="'+src+'" alt="'+(alt||'')+'" class="'+(cls||'')+'" onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace(\'thumbnail?id=\',\'uc?export=view&id=\');}else{this.style.display=\'none\'}">';
+}
+function cell(label, im, name, link) {
+  var inner = (im?safeImg(im, name, 'thumb'):'') + '<div class="text-sm"><div class="muted">'+label+'</div><div class="font-medium">'+(name||'-')+'</div></div>';
+  return link?('<a class="row" href="'+link+'">'+inner+'</a>'):('<div class="row">'+inner+'</div>');
+}
+function row(l,il,nl,r,ir,nr,ll,lr) {
+  return '<div class="row">'+cell(l,il,nl,ll)+'<div class="muted" style="padding:0 .5rem">|</div>'+cell(r,ir,nr,lr)+'</div>';
+}
+function boxLink(href, inner) { return href?('<a class="ibox" href="'+href+'">'+inner+'</a>'):('<div class="ibox">'+inner+'</div>'); }
+function rewardBox(r){
+  if(typeof r.exp==='number') {
+    return '<div class="ibox">'+safeImg(r.img,'EXP','thumb')+'<div class="text-sm font-medium">경험치 '+(r.exp.toLocaleString())+' exp</div></div>';
+  }
+  var title = (r.name||'') + (r.qty?(' ×'+r.qty):'');
+  var inner = safeImg(r.img,r.name,'thumb')+'<div class="text-sm font-medium">'+title+'</div>';
+  return boxLink(r.itemId?('https://linsuol13-bit.github.io/LO/item-'+r.itemId+'.html'):'' , inner);
+}
+function reqBox(r){
+  var isMonster = (r.kind||'').toLowerCase()==='monster';
+  var title = r.name + ' ×' + (r.qty||'');
+  var href = r.id?('https://linsuol13-bit.github.io/LO/'+(isMonster?'monster':'item')+'-'+r.id+'.html'):'';
+  var label = isMonster ? '퇴치 대상' : '필요 아이템';
+  var inner = safeImg(r.img,r.name,'thumb')+'<div class="text-sm"><div class="muted">'+label+'</div><div class="font-medium">'+title+'</div></div>';
+  return boxLink(href, inner);
+}
+function tipTextSection(txt){
+  if(!txt) return '';
+  return '<section class="mb-6"><h2 class="text-sm font-semibold mb-2">TIP</h2><div class="card text-sm">'+txt+'</div></section>';
+}
+var q = {"id": "2186", "code": "아벨 1-1", "title": "안경을 찾아줘", "type": "아이템 수집", "region": "노틸러스", "minLevel": 15, "start": {"npc": {"name": "아벨", "img": "https://drive.google.com/thumbnail?id=1iDO5o8J5rhLiluwbPNQtDzB7_GDkFG9M&sz=w400", "id": "1094001"}, "place": {"name": "노틸러스 선착장", "img": "https://drive.google.com/thumbnail?id=1z47DaziHwcHFQElmxkmDlJ5RPi_0WzOa&sz=w800", "code": "120000000"}}, "finish": {"npc": {"name": "아벨", "img": "https://drive.google.com/thumbnail?id=1iDO5o8J5rhLiluwbPNQtDzB7_GDkFG9M&sz=w400", "id": "1094001"}, "place": {"name": "노틸러스 선착장", "img": "https://drive.google.com/thumbnail?id=1z47DaziHwcHFQElmxkmDlJ5RPi_0WzOa&sz=w800", "code": "120000000"}}, "dialogues": [{"who": "아벨", "text": "내 안경… 내 안경…"}, {"who": "플레이어", "text": "무슨 일 있으세요? 땅에 떨어진 물건이라도 있나요?"}, {"who": "아벨", "text": "아~ 가까이 다가오지 마세요! 혹시 제 안경이 떨어져 있을지도 모르니까요. 밟으면 큰일나요! 그 근처에 안경이 떨어져 있나요? 검은 뿔테 안경… 내 안경…"}, {"who": "플레이어", "text": "아니요. 없는데…"}, {"who": "아벨", "text": "하아~ 바트에게 그렇게 말했는데… 또 갈매기들이 가져갔군요. 워낙 반짝이는 물건을 좋아하니 제가 자고 있는 사이에 안경을 가져간적이 한두 번이 아니죠. 전 앞이 안보여서 그런데 감시탑으로 가서 안경 좀 찾아주세요."}, {"who": "아벨", "text": "감사합니다. 제 안경은 제 눈과 같거든요. 안경이 없으면 아무 것도 보이지 않아요. 바로 제 앞에 있는 당신의 얼굴도 어떻게 생겼는지 흐릿흐릿하군요."}, {"who": "아벨", "text": "제 안경은 검은색 뿔테 안경이에요. 눈이 엄청 나빠서 다른 사람의 안경은 써도 앞이 보이지 않으니 꼭 제 안경을 찾아주셔야 해요."}, {"who": "아벨", "text": "감시탑은 이 곳에서 오른쪽으로 계속 가시면 나올 거에요. 그 곳으로 가면 바트와 못된 갈매기들이 우글우글 한 곳이니 쉽게 찾을 수 있을겁니다. 제 안경을 꼭 찾아서 저에게 가져와 주세요."}], "completionDialogues": [{"who": "아벨", "text": "앗! 제 안경을 찾으셨다고요? 한번 써볼까요? 제 안경이 아닐 수도 있으니 직접 써보는 방법 말고는 구분할 수 없어요. 어라? 손에 들고 계신 또 다른 안경은 무엇인가요? 어? 그 안경도 제게 주시지 않으시\n겠어요? 보상은 해드릴게요. 후후, 기분에 따라서 안경을 바꿔서 써보기도 해야겠어요."}, {"who": "아벨", "text": "후후훗 ... 다시 낚시를 즐겨 볼까요?"}], "desc": "안경을 잃어버린 아벨은 앞에 전혀 보이지 않는다고한다. 낮잠 자는 사이에 펠리컨들이 집어가버렸다니… 아벨이 앞을 볼 수 있도록 갈매기들이 모여있는 노틸러스호 선착장 동쪽 끝에 있는 감시탑의 풀 숲을 뒤져서 안경을 찾아보자. 아벨의 안경은 검은 뿔테라는 것도 잊지 말고!", "reqs": [{"kind": "item", "name": "아벨의 안경", "img": "https://drive.google.com/thumbnail?id=143ZtsWxcexr_edX6DOOEsDIPoeJNiWGI&sz=w200", "qty": 1, "id": "4031853"}], "tipText": "감시 탑 쪽 알과 상자가 있는 풀숲 선택", "rewards": [{"name": "노틸러스 귀환 주문서", "qty": 15, "img": "https://drive.google.com/thumbnail?id=1hoIv1U4fShvg3XP37Qh7x30Tj0HSO3_M&sz=w200", "itemId": "2030019"}, {"exp": 10500, "img": "https://drive.google.com/thumbnail?id=1O9FuxyZEG_nZVJikWShUPKvb5zCH7t-z&sz=w200"}]};
+try {
+  var $d = document.getElementById('detail');
+  var startNpcLink = q.start.npc.id ? ('https://linsuol13-bit.github.io/LO/npc-'+q.start.npc.id+'.html') : '';
+  var startMapLink = q.start.place.code ? ('https://linsuol13-bit.github.io/LO/map-'+q.start.place.code+'.html') : '';
+  var finNpcLink = q.finish.npc.id ? ('https://linsuol13-bit.github.io/LO/npc-'+q.finish.npc.id+'.html') : '';
+  var finMapLink = q.finish.place.code ? ('https://linsuol13-bit.github.io/LO/map-'+q.finish.place.code+'.html') : '';
+
+  var dialogues = q.dialogues.map(function(d){
+    var left = (d.who !== '플레이어' && d.who.toLowerCase() !== 'player');
+    var av = left ? (d.who===q.start.npc.name ? q.start.npc.img : (d.who===q.finish.npc.name ? q.finish.npc.img : '')) : '';
+    var avatar = (left && av)?('<img class="avatar" src="'+av+'" alt="'+(d.who||'')+'" onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace(\'thumbnail?id=\',\'uc?export=view&id=\');}else{this.style.display=\'none\'}">'):'';
+    return '<div class="flex items-start '+(left?'justify-start':'justify-end')+' gap-2">'+(left?avatar:'')+'<div class="bubble '+(left?'bubble-left':'bubble-right')+'"><div class="bubble-name">'+(d.who||'')+'</div><div>'+ (d.text||'') +'</div></div></div>';
+  }).join('');
+
+  var comp = (q.completionDialogues||[]).map(function(d){
+    var left = (d.who !== '플레이어' && d.who.toLowerCase() !== 'player');
+    var av = left ? (d.who===q.start.npc.name ? q.start.npc.img : (d.who===q.finish.npc.name ? q.finish.npc.img : '')) : '';
+    var avatar = (left && av)?('<img class="avatar" src="'+av+'" alt="'+(d.who||'')+'" onerror="if(!this.dataset.fbk){this.dataset.fbk=1;this.src=this.src.replace(\'thumbnail?id=\',\'uc?export=view&id=\');}else{this.style.display=\'none\'}">'):'';
+    return '<div class="flex items-start '+(left?'justify-start':'justify-end')+' gap-2">'+(left?avatar:'')+'<div class="bubble '+(left?'bubble-left':'bubble-right')+'"><div class="bubble-name">'+(d.who||'')+'</div><div>'+ (d.text||'') +'</div></div></div>';
+  }).join('');
+
+  var reqs = (q.reqs||[]).map(reqBox).join('');
+
+  var rewards = (q.rewards||[]).map(rewardBox).join('');
+
+  var html = ''
+    + '<header class="mb-4"><h1 class="text-2xl font-bold">'+q.code+' · '+q.title+'</h1><p class="text-sm muted">'+q.region+' · '+q.type+' · Lv.'+q.minLevel+'</p></header>'
+    + '<section class="grid" style="grid-template-columns:1fr 1fr;">'
+      + '<div class="card"><h2 class="text-sm font-semibold mb-3">시작</h2>'+ row('시작 NPC', q.start.npc.img, q.start.npc.name, '시작 장소', q.start.place.img, q.start.place.name, startNpcLink, startMapLink) +'</div>'
+      + '<div class="card"><h2 class="text-sm font-semibold mb-3">완료</h2>'+ row('완료 NPC', q.finish.npc.img, q.finish.npc.name, '완료 장소', q.finish.place.img, q.finish.place.name, finNpcLink, finMapLink) +'</div>'
+    + '</section>'
+    + '<section class="mb-6"><h2 class="text-sm font-semibold mb-2">대사</h2><div class="card" style="display:grid; gap:.5rem">'+ dialogues +'</div></section>'
+    + '<section class="mb-6"><h2 class="text-sm font-semibold mb-2">퀘스트 조건</h2><div class="card text-sm leading-relaxed text-gray-800 mb-3">'+ q.desc +'</div>'
+      + '<div class="mt-3"><div class="muted text-xs mb-1">요구 조건</div><div class="grid" style="grid-template-columns:1fr 1fr; gap:.75rem">'+ reqs +'</div></div>'
+      + tipTextSection(q.tipText)
+      + (comp?'<div class="mt-4 pt-3 border-t"><h2 class="text-sm font-semibold mb-2">완료 대사</h2><div class="card">'+comp+'</div></div>':'')
+    + '</section>'
+    + (rewards?'<section class="mb-6"><h2 class="text-sm font-semibold mb-2">완료 보상</h2><div class="grid">'+rewards+'</div></section>':'')
+  ;
+  $d.innerHTML = html;
+} catch(e) {
+  var box = document.getElementById('errorBox');
+  box.style.display='block';
+  box.innerHTML = '<div class="font-semibold">렌더링 오류:</div><pre>'+ (e && (e.stack||e.message||e)) +'</pre>';
+}
+</script>
+</body>
+</html>
